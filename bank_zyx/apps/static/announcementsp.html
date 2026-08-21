@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>政府公告信</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <style>
+        :root {
+            --primary-color: #1a5fb4;
+            --secondary-color: #26a269;
+            --danger-color: #c01c28;
+            --light-bg: #f8f9fa;
+            --border-color: #dee2e6;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+        }
+        
+        .header {
+            background: linear-gradient(to right, var(--primary-color), #2e7d9a);
+            color: white;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .header .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .card-header .search-container {
+            max-width: 400px;
+            margin-top: 5px;
+        }
+
+        .card-header .search-container .input-group {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 2px;
+        }
+
+        .card-header .search-container .input-group-text {
+            background: transparent;
+            border: none;
+            color: white;
+        }
+
+        .card-header .search-container .form-control {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            max-width: 200px;
+        }
+
+        .card-header .search-container .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .card-header .search-container .btn {
+            padding: 6px 12px;
+            font-size: 0.875rem;
+        }        
+                .card-header {
+            background: linear-gradient(to right, var(--primary-color), #3a86ff);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 1rem 1.5rem;
+        }
+        
+        .table-responsive {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .table thead {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .table tbody tr {
+            transition: all 0.2s ease;
+        }
+        
+        .table tbody tr:hover {
+            background-color: rgba(26, 95, 180, 0.05);
+            transform: scale(1.01);
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background-color: #e8f5e9;
+            color: var(--secondary-color);
+        }
+        
+        .status-inactive {
+            background-color: #ffebee;
+            color: var(--danger-color);
+        }
+        
+        .btn-custom {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary-custom {
+            background: linear-gradient(to right, var(--primary-color), #3a86ff);
+            border: none;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(26, 95, 180, 0.3);
+        }
+        
+        .btn-success-custom {
+            background: linear-gradient(to right, var(--secondary-color), #4cd964);
+            border: none;
+        }
+        
+        .modal-header {
+            background: linear-gradient(to right, var(--primary-color), #3a86ff);
+            color: white;
+        }
+        
+        .announcement-detail {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .announcement-title {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .announcement-content {
+            line-height: 1.8;
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .announcement-meta {
+            background-color: var(--light-bg);
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+        
+        .file-attachment {
+            background-color: #e3f2fd;
+            border: 1px dashed var(--primary-color);
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .pagination-controls {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            color: #ccc;
+            margin-bottom: 15px;
+        }
+        
+        .search-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .file-preview {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        
+        .file-preview i {
+            color: var(--primary-color);
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <!-- 页头 -->
+        <div class="header text-center rounded-3">
+            <div class="logo justify-content-center">
+                <i class="fas fa-landmark"></i>
+                <span>政府公告信息</span>
+            </div>
+        </div>
+
+
+
+        <!-- 公告列表 -->
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-bullhorn"></i> 公告列表</h5>
+            <div class="d-flex align-items-center">
+                <div class="input-group input-group-sm" style="width: 300px;">
+                    <input type="text" class="form-control" id="search-input" placeholder="输入标题或内容关键词搜索...">
+                    <button class="btn btn-outline-light" onclick="searchAnnouncements()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button class="btn btn-outline-light" onclick="resetSearch()">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>标题</th>
+                                <th>发布人</th>
+                                <th>发布时间</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="announcement-table-body">
+                            <!-- 数据将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- 加载状态 -->
+                <div class="loading-spinner" id="loading-spinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">加载中...</span>
+                    </div>
+                    <p class="mt-2">正在加载公告数据...</p>
+                </div>
+                
+                <!-- 空状态 -->
+                <div class="empty-state" id="empty-state" style="display: none;">
+                    <i class="fas fa-inbox"></i>
+                    <p>点击上方按钮发布第一条公告</p>
+                </div>
+                
+                <!-- 分页控制 -->
+                <div class="pagination-controls mt-3" id="pagination-controls" style="display: none;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            共 <span id="total-count">0</span> 条记录，显示第 <span id="current-range">1-10</span> 条
+                        </div>
+                        <div>
+                            <nav>
+                                <ul class="pagination mb-0">
+                                    <li class="page-item" id="prev-page">
+                                        <a class="page-link" href="javascript:void(0)" onclick="changePage('prev')">
+                                            <i class="fas fa-chevron-left"></i> 上一页
+                                        </a>
+                                    </li>
+                                    <li class="page-item disabled">
+                                        <span class="page-link" id="current-page">第 1 页</span>
+                                    </li>
+                                    <li class="page-item" id="next-page">
+                                        <a class="page-link" href="javascript:void(0)" onclick="changePage('next')">
+                                            下一页 <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情模态框 -->
+    <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">公告详情</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="announcement-detail" id="announcement-detail-content">
+                        <!-- 详情内容将通过JavaScript动态加载 -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加公告模态框 -->
+    <div class="modal fade" id="announcementModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">发布新公告</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="announcement-form">
+                        <input type="hidden" id="announcement-id" value="">
+                        
+                        <div class="mb-3">
+                            <label for="title" class="form-label">公告标题 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="title" required 
+                                   placeholder="请输入公告标题（最多200字）" maxlength="200">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="publisher_id" class="form-label">发布人 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="publisher_id" 
+                                placeholder="请输入发布人姓名" required>
+                            <div class="form-text">必须填写有效的发布人</div>
+                        </div>  
+
+                        <div class="mb-3">
+                            <label for="publish_time" class="form-label">发布时间</label>
+                            <input type="datetime-local" class="form-control" id="publish_time">
+                            <div class="form-text">不填则默认为当前时间</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="content" class="form-label">公告内容 <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="content" rows="8" required 
+                                      placeholder="请输入公告详细内容..."></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="detail_attachment_file" class="form-label">详情附件</label>
+                            <div class="input-group">
+                                <input type="file" class="form-control" id="detail_attachment_file" 
+                                       accept=".pdf,.doc,.docx">
+                                <button class="btn btn-outline-secondary" type="button" 
+                                        onclick="clearFileInput()">
+                                    <i class="fas fa-times"></i> 清除
+                                </button>
+                            </div>
+                            <div class="form-text">
+                                支持 PDF、Word 文档，最大10MB。格式：.pdf, .doc, .docx
+                            </div>
+                            <div id="file-preview" class="file-preview" style="display: none;">
+                                <i class="fas fa-file"></i>
+                                <span id="file-name"></span>
+                                <span class="badge bg-secondary ms-2" id="file-size"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">状态</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="status" 
+                                           id="status-active" value="1" checked>
+                                    <label class="form-check-label" for="status-active">
+                                        正常发布
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="status" 
+                                           id="status-draft" value="0">
+                                    <label class="form-check-label" for="status-draft">
+                                        草稿（不发布）
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="saveAnnouncement()" id="save-button">
+                        <i class="fas fa-save"></i> 保存公告
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 库 -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        // 全局变量
+        let currentPage = 1;
+        let pageSize = 10;
+        let totalCount = 0;
+        let searchKeyword = '';
+        
+        // API 基础URL - 根据你的实际API地址修改
+        const API_BASE_URL = 'http://localhost:8000/api-announcement/';
+        
+        // 页面加载完成后执行
+        $(document).ready(function() {
+            loadAnnouncements();
+            
+            // 监听文件选择
+            $('#detail_attachment_file').change(function() {
+                previewFile(this);
+            });
+            
+            // 监听搜索框回车键
+            $('#search-input').keypress(function(e) {
+                if (e.which === 13) {
+                    searchAnnouncements();
+                }
+            });
+            
+            // 每次显示模态框时重置表单
+            $('#announcementModal').on('show.bs.modal', function () {
+                resetAnnouncementForm();
+            });
+        });
+        
+        // 重置公告表单
+        function resetAnnouncementForm() {
+            $('#announcement-form')[0].reset();
+            $('#announcement-id').val('');
+            $('#file-preview').hide();
+            $('#status-active').prop('checked', true);
+            $('#publish_time').val('');
+        }
+        
+        // 加载公告列表
+        function loadAnnouncements() {
+            showLoading(true);
+            
+            // 构建正确的参数
+            let params = {
+                page: currentPage,
+                page_size: pageSize
+            };
+            
+            // 添加搜索参数
+            if (searchKeyword) {
+                params.search = searchKeyword;
+                console.log('🔍 搜索参数:', searchKeyword);
+            }
+            
+            console.log('📡 请求参数:', params);
+            console.log('🌐 请求URL:', API_BASE_URL);
+            
+            $.ajax({
+                url: API_BASE_URL,
+                type: 'GET',
+                data: params,
+                dataType: 'json',
+                success: function(response) {
+                    console.log('✅ 请求成功:', response);
+                    showLoading(false);
+                    
+                    if (response && response.results) {
+                        renderAnnouncementTable(response);
+                        updateStatistics(response);
+                        
+                        // 显示搜索状态
+                        if (searchKeyword) {
+                            $('#search-status').text(`搜索"${searchKeyword}"，找到 ${response.count || 0} 条结果`).show();
+                        } else {
+                            $('#search-status').hide();
+                        }
+                    } else {
+                        $('#empty-state').show();
+                        $('#pagination-controls').hide();
+                        $('#search-status').hide();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('❌ API错误:');
+                    console.error('状态:', status);
+                    console.error('错误:', error);
+                    console.error('响应:', xhr.responseText);
+                    console.error('状态码:', xhr.status);
+                    
+                    showLoading(false);
+                    
+                    // 处理搜索失败的情况
+                    if (searchKeyword) {
+                        console.log('⚠️ 搜索失败，尝试重置搜索...');
+                        
+                        // 如果搜索导致错误，可能是API不支持搜索参数
+                        // 先重置搜索，重新加载数据
+                        const failedKeyword = searchKeyword;
+                        searchKeyword = '';
+                        
+                        // 显示友好的错误信息
+                        Swal.fire({
+                            icon: 'warning',
+                            title: '搜索功能暂不可用',
+                            html: `
+                                <p>搜索"<strong>${failedKeyword}</strong>"时出现错误。</p>
+                                <p>系统已恢复显示全部公告。</p>
+                                <p><small>可能是API暂不支持搜索功能，或搜索参数不正确。</small></p>
+                            `,
+                            confirmButtonText: '知道了'
+                        }).then(() => {
+                            // 重新加载无搜索条件的数据
+                            loadAnnouncements();
+                        });
+                    } else {
+                        // 普通加载失败
+                        let errorMsg = '无法加载公告数据';
+                        
+                        if (xhr.status === 400) {
+                            errorMsg = '请求参数错误';
+                            if (searchKeyword) {
+                                searchKeyword = '';
+                                loadAnnouncements();
+                                return;
+                            }
+                        } else if (xhr.status === 404) {
+                            errorMsg = 'API接口不存在';
+                        } else if (xhr.status === 500) {
+                            errorMsg = '服务器内部错误';
+                        }
+                        
+                        Swal.fire({
+                            icon: 'error',
+                            title: '加载失败',
+                            html: `
+                                <p>${errorMsg}</p>
+                                <p>状态码: ${xhr.status} ${xhr.statusText}</p>
+                                <div class="text-start mt-3">
+                                    <p><strong>建议检查：</strong></p>
+                                    <ul>
+                                        <li>Django服务器是否运行</li>
+                                        <li>API URL是否正确：${API_BASE_URL}</li>
+                                        <li>网络连接是否正常</li>
+                                        <li>查看浏览器控制台获取详细信息</li>
+                                    </ul>
+                                </div>
+                            `,
+                            confirmButtonText: '我知道了'
+                        });
+                        
+                        $('#empty-state').show();
+                        $('#pagination-controls').hide();
+                        $('#search-status').hide();
+                    }
+                }
+            });
+        }
+        
+        // 渲染公告表格
+        function renderAnnouncementTable(response) {
+            const tbody = $('#announcement-table-body');
+            tbody.empty();
+            
+            if (!response.results || response.results.length === 0) {
+                $('#empty-state').show();
+                $('#pagination-controls').hide();
+                return;
+            }
+            
+            $('#empty-state').hide();
+            $('#pagination-controls').show();
+            
+            response.results.forEach(function(announcement) {
+                const row = `
+                    <tr>
+                        <td>${announcement.id}</td>
+                        <td>
+                            <strong>${announcement.title}</strong>
+                            ${announcement.detail_attachment_url ? 
+                                '<span class="badge bg-info ms-2"><i class="fas fa-paperclip"></i> 有附件</span>' : ''}
+                        </td>
+                        <td>
+                            ${announcement.publisher_name || announcement.publisher_username || 
+                            announcement.created_by || '管理员'}
+                        </td>
+                        <td>${formatDateTime(announcement.publish_time || announcement.created_at)}</td>
+                        <td>
+                            ${announcement.status === 1 ? 
+                                '<span class="badge bg-success"><i class="fas fa-check-circle"></i> 正常</span>' : 
+                            announcement.status === 0 ? 
+                                '<span class="badge bg-warning"><i class="fas fa-clock"></i> 草稿</span>' : 
+                                '<span class="badge bg-danger"><i class="fas fa-trash-alt"></i> 已删除</span>'}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="viewAnnouncementDetail(${announcement.id})"
+                                        title="查看公告详情">
+                                    <i class="fas fa-eye"></i> 查看
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                tbody.append(row);
+            });
+            
+            // 更新分页信息
+            totalCount = response.count || 0;
+            updatePaginationControls(response);
+        }
+        
+        // 更新分页控制
+        function updatePaginationControls(response) {
+            $('#total-count').text(totalCount);
+            
+            const start = ((currentPage - 1) * pageSize) + 1;
+            const end = Math.min(currentPage * pageSize, totalCount);
+            $('#current-range').text(`${start}-${end}`);
+            $('#current-page').text(`第 ${currentPage} 页`);
+            
+            // 更新上一页/下一页按钮状态
+            $('#prev-page').toggleClass('disabled', !response.previous);
+            $('#next-page').toggleClass('disabled', !response.next);
+        }
+        
+        // 查看公告详情
+        function viewAnnouncementDetail(id) {
+            $.ajax({
+                url: `${API_BASE_URL}${id}/`,
+                type: 'GET',
+                dataType: 'json',
+                success: function(announcement) {
+                    renderAnnouncementDetail(announcement);
+                    $('#detailModal').modal('show');
+                },
+                error: function() {
+                    Swal.fire('错误', '无法加载公告详情', 'error');
+                }
+            });
+        }
+        
+        // 渲染公告详情
+        function renderAnnouncementDetail(announcement) {
+            const content = `
+                <h3 class="announcement-title">${announcement.title}</h3>
+                <div class="announcement-content">
+                    ${announcement.content.replace(/\n/g, '<br>')}
+                </div>
+                
+                ${announcement.detail_attachment_url ? `
+                <div class="file-attachment">
+                    <h6><i class="fas fa-paperclip"></i> 附件下载</h6>
+                    <a href="${announcement.detail_attachment_url}" target="_blank" 
+                       class="btn btn-primary btn-sm">
+                        <i class="fas fa-download"></i> 下载附件
+                    </a>
+                    <small class="d-block mt-2 text-muted">
+                        文件类型：${getFileType(announcement.detail_attachment_url)}
+                    </small>
+                </div>
+                ` : ''}
+                
+                <div class="announcement-meta">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <strong><i class="fas fa-user"></i> 发布人：</strong>
+                            ${announcement.publisher_name || `用户 ${announcement.publisher_id}`}
+                        </div>
+                        <div class="col-md-4">
+                            <strong><i class="fas fa-clock"></i> 发布时间：</strong>
+                            ${formatDateTime(announcement.publish_time)}
+                        </div>
+                        <div class="col-md-4">
+                            <strong><i class="fas fa-flag"></i> 状态：</strong>
+                            ${announcement.status === 1 ? 
+                                '<span class="badge bg-success">正常</span>' : 
+                                '<span class="badge bg-danger">已删除</span>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            $('#announcement-detail-content').html(content);
+        }
+        
+        // 保存公告（仅添加）
+        function saveAnnouncement() {
+            const title = $('#title').val().trim();
+            const content = $('#content').val().trim();
+            const status = $('input[name="status"]:checked').val();
+            const publisherInput = $('#publisher_id').val().trim();
+            const publishTimeInput = $('#publish_time').val();
+            const fileInput = $('#detail_attachment_file')[0];
+            
+            // 验证输入
+            if (!title) {
+                Swal.fire('警告', '请输入公告标题', 'warning');
+                $('#title').focus();
+                return;
+            }
+            
+            if (!content) {
+                Swal.fire('警告', '请输入公告内容', 'warning');
+                $('#content').focus();
+                return;
+            }
+            
+            if (!publisherInput) {
+                Swal.fire('警告', '请输入发布人', 'warning');
+                $('#publisher_id').focus();
+                return;
+            }
+            
+            if (title.length > 200) {
+                Swal.fire('警告', '标题不能超过200个字符', 'warning');
+                $('#title').focus();
+                return;
+            }
+            
+            // 构建请求数据
+            let requestData = {
+                title: title,
+                content: content,
+                status: parseInt(status),
+                publisher_id: publisherInput
+            };
+            
+            if (publishTimeInput) {
+                // 将 datetime-local 格式转换为 ISO 格式
+                requestData.publish_time = publishTimeInput.replace('T', ' ') + ':00';
+                console.log('简化格式:', requestData.publish_time);
+            }  
+            
+            console.log('发送的数据：', requestData);
+                   
+            let contentType = 'application/json';
+            let processData = true;
+            
+            // 如果有文件，使用 FormData
+            let useFormData = false;
+            let formData = new FormData();
+            
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                
+                // 验证文件大小（10MB限制）
+                if (file.size > 10 * 1024 * 1024) {
+                    Swal.fire('错误', '文件大小不能超过10MB', 'error');
+                    return;
+                }
+                
+                // 验证文件类型
+                const allowedTypes = ['.pdf', '.doc', '.docx'];
+                const fileName = file.name.toLowerCase();
+                const isAllowed = allowedTypes.some(ext => fileName.endsWith(ext));
+                
+                if (!isAllowed) {
+                    Swal.fire('错误', '只支持 PDF、Word 文档格式 (.pdf, .doc, .docx)', 'error');
+                    return;
+                }
+                
+                useFormData = true;
+                formData.append('detail_attachment_file', file);
+                
+                // 添加其他字段到 FormData
+                for (let key in requestData) {
+                    formData.append(key, requestData[key]);
+                }
+                
+                contentType = false;
+                processData = false;
+            }
+            
+            // 显示保存中状态
+            const saveButton = $('#save-button');
+            const originalText = saveButton.html();
+            saveButton.html('<i class="fas fa-spinner fa-spin"></i> 保存中...');
+            saveButton.prop('disabled', true);
+            
+            // 发送请求（仅POST用于添加）
+            const ajaxConfig = {
+                url: API_BASE_URL,
+                type: 'POST',
+                dataType: 'json',
+                success: function(response) {
+                    saveButton.html(originalText);
+                    saveButton.prop('disabled', false);
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: '发布成功',
+                        text: '新公告已发布',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        // 关闭模态框
+                        const modal = bootstrap.Modal.getInstance($('#announcementModal')[0]);
+                        if (modal) modal.hide();
+                        
+                        // 重置表单
+                        resetAnnouncementForm();
+                        
+                        // 重新加载公告列表
+                        loadAnnouncements();
+                    });
+                },
+                error: function(xhr) {
+                    saveButton.html(originalText);
+                    saveButton.prop('disabled', false);
+                    
+                    let errorMessage = '保存失败';
+                    let errorDetails = '';
+                    
+                    console.error('Save Error:', xhr.responseText);
+                    
+                    if (xhr.responseJSON) {
+                        const errors = xhr.responseJSON;
+                        
+                        // 格式化错误信息
+                        if (typeof errors === 'object') {
+                            for (let field in errors) {
+                                if (Array.isArray(errors[field])) {
+                                    errorDetails += `<strong>${field}:</strong> ${errors[field].join(', ')}<br>`;
+                                } else {
+                                    errorDetails += `<strong>${field}:</strong> ${errors[field]}<br>`;
+                                }
+                            }
+                        } else if (typeof errors === 'string') {
+                            errorDetails = errors;
+                        }
+                        
+                        errorMessage = errorDetails || '请求参数错误';
+                    }
+                    
+                    Swal.fire({
+                        icon: 'error',
+                        title: '发布失败',
+                        html: errorMessage,
+                        confirmButtonText: '我知道了'
+                    });
+                }
+            };
+            
+            // 根据是否有文件设置不同的配置
+            if (useFormData) {
+                ajaxConfig.data = formData;
+                ajaxConfig.processData = processData;
+                ajaxConfig.contentType = contentType;
+            } else {
+                ajaxConfig.data = JSON.stringify(requestData);
+                ajaxConfig.contentType = 'application/json';
+            }
+            
+            // 发送请求
+            $.ajax(ajaxConfig);
+        }
+
+        // 测试API连接性
+        function testAPIConnection() {
+            $.ajax({
+                url: API_BASE_URL,
+                type: 'GET',
+                data: { page: 1, page_size: 1 },
+                success: function(response) {
+                    console.log('API连接成功:', response);
+                    return true;
+                },
+                error: function(xhr) {
+                    console.error('API连接失败:', xhr.status, xhr.statusText);
+                    
+                    const possibleURLs = [
+                        'http://localhost:8000/api/announcements/',
+                        'http://localhost:8000/announcements/',
+                        'http://localhost:8000/api/announcement/announcements/',
+                        'http://localhost:8000/announcement/'
+                    ];
+                    
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'API连接失败',
+                        html: `
+                            <p>当前API地址无法访问: ${API_BASE_URL}</p>
+                            <p>状态: ${xhr.status} ${xhr.statusText}</p>
+                            <p>请检查：</p>
+                            <ol>
+                                <li>Django服务器是否正在运行 (python manage.py runserver)</li>
+                                <li>API URL是否正确</li>
+                                <li>查看Django控制台输出</li>
+                            </ol>
+                            <p>在浏览器控制台执行 <code>testAPIConnection()</code> 测试连接</p>
+                        `,
+                        confirmButtonText: '确定'
+                    });
+                    
+                    return false;
+                }
+            });
+        }
+
+        // 在页面加载时测试连接
+        $(document).ready(function() {
+            console.log('页面加载完成，开始测试API连接...');
+            
+            // 延迟测试，确保页面完全加载
+            setTimeout(() => {
+                testAPIConnection();
+                loadAnnouncements();
+            }, 1000);
+        });
+
+        // 搜索公告
+        function searchAnnouncements() {
+            const keyword = $('#search-input').val().trim();
+            
+            if (keyword === searchKeyword) {
+                return; // 相同的搜索词，不重复搜索
+            }
+            
+            searchKeyword = keyword;
+            currentPage = 1;
+            
+            console.log('执行搜索，关键词:', searchKeyword);
+            
+            // 显示搜索状态
+            if (searchKeyword) {
+                showSearchStatus(true);
+            } else {
+                showSearchStatus(false);
+            }
+            
+            loadAnnouncements();
+        }
+
+        // 显示/隐藏搜索状态
+        function showSearchStatus(show) {
+            const searchBox = $('.search-box');
+            if (show) {
+                searchBox.addClass('searching');
+                $('#search-input').addClass('is-searching');
+            } else {
+                searchBox.removeClass('searching');
+                $('#search-input').removeClass('is-searching');
+            }
+        }
+
+        // 重置搜索
+        function resetSearch() {
+            if (!searchKeyword) {
+                return; // 已经是重置状态
+            }
+            
+            $('#search-input').val('');
+            searchKeyword = '';
+            currentPage = 1;
+            
+            showSearchStatus(false);
+            loadAnnouncements();
+            
+            console.log('搜索已重置');
+        }
+
+        // 监听搜索框输入，实现实时搜索（可选）
+        $('#search-input').on('input', function() {
+            clearTimeout(window.searchTimeout);
+            
+            const keyword = $(this).val().trim();
+            if (keyword.length >= 2) {
+                window.searchTimeout = setTimeout(function() {
+                    searchAnnouncements();
+                }, 500);
+            } else if (keyword.length === 0 && searchKeyword) {
+                resetSearch();
+            }
+        });
+        
+        // 分页切换
+        function changePage(direction) {
+            if (direction === 'prev') {
+                if (currentPage > 1) {
+                    currentPage--;
+                }
+            } else if (direction === 'next') {
+                if (currentPage * pageSize < totalCount) {
+                    currentPage++;
+                }
+            }
+            loadAnnouncements();
+        }
+        
+        // 文件预览
+        function previewFile(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                $('#file-preview').show();
+                $('#file-name').text(file.name);
+                $('#file-size').text(formatFileSize(file.size));
+            }
+        }
+        
+        // 清除文件输入
+        function clearFileInput() {
+            $('#detail_attachment_file').val('');
+            $('#file-preview').hide();
+        }
+        
+        // 更新统计信息
+        function updateStatistics(response) {
+            $('#total-announcements').text(response.count || 0);
+        }
+        
+        // 显示/隐藏加载状态
+        function showLoading(show) {
+            if (show) {
+                $('#loading-spinner').show();
+                $('#announcement-table-body').hide();
+                $('#empty-state').hide();
+                $('#pagination-controls').hide();
+            } else {
+                $('#loading-spinner').hide();
+                $('#announcement-table-body').show();
+            }
+        }
+        
+        // 工具函数：格式化日期时间
+        function formatDateTime(datetimeString) {
+            if (!datetimeString || datetimeString === 'null' || datetimeString === 'undefined') {
+                return '未发布';
+            }
+            
+            try {
+                let date;
+                if (datetimeString.includes('T')) {
+                    date = new Date(datetimeString);
+                } else if (datetimeString.includes(' ')) {
+                    date = new Date(datetimeString.replace(' ', 'T') + 'Z');
+                } else {
+                    date = new Date(datetimeString);
+                }
+                
+                if (isNaN(date.getTime())) {
+                    const timestamp = Date.parse(datetimeString);
+                    if (!isNaN(timestamp)) {
+                        date = new Date(timestamp);
+                    } else {
+                        return datetimeString;
+                    }
+                }
+                
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                
+                return `${year}-${month}-${day} ${hours}:${minutes}`;
+            } catch (e) {
+                console.warn('日期格式化失败:', datetimeString, e);
+                return datetimeString;
+            }
+        }
+        
+        // 工具函数：格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // 工具函数：获取文件类型
+        function getFileType(url) {
+            const ext = url.split('.').pop().toLowerCase();
+            if (ext === 'pdf') return 'PDF文档';
+            if (ext === 'doc') return 'Word文档 (.doc)';
+            if (ext === 'docx') return 'Word文档 (.docx)';
+            return '未知文件';
+        }
+    </script>
+</body>
+</html>

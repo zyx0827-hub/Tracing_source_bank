@@ -1,0 +1,83 @@
+<html>
+    <head>
+        <title>test</title>
+        <!-- 引入jquery.min.js，才能使用jquery相关的函数 -->
+        <script src="../static/jquery.min.js"></script>
+        <!--  script标签里面写的是jquery（js）代码 -->
+        <script>
+            // 这节课在这里教大家ajax的使用
+            
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = jQuery.trim(cookies[i]);
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        const csrftoken = getCookie('csrftoken');
+            /* 
+            * 创建一个firstGet函数，用来调用一个ajax get 请求
+            */
+            function firstGet(){
+                $.ajax({
+
+                    url: "/hello/",        // 必需，后端接口地址（如 "/api/data" 或 "data.json"）
+                    type: "POST",           // 可选，请求方式（GET/POST/PUT/DELETE 等），默认 GET
+                    data: {},            // 可选，请求参数（json格式）
+                    //dataType: "json",      // 可选，预期服务器返回的数据类型（json/text/html/xml等）
+                    timeout: 5000,         // 可选，请求超时时间（毫秒），超过则触发错误
+                    beforeSend: function(xhr) {
+                        // 可选，发送请求前执行（如添加请求头、显示加载动画）
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken)
+                        console.log("准备发送请求...");
+                    },
+                    success: function(response) {
+                        // 必需，请求成功时执行（response 是服务器返回的数据）
+                        console.log("请求成功：", response);
+                        $("#firstp").html(response);
+                        $("#username").val("薛亚飞");
+                    },
+                    error: function(xhr, status, error) {
+                        // 可选，请求失败时执行（如网络错误、服务器错误）
+                        console.log("请求失败：", status, error);
+                    },
+                    complete: function(xhr, status) {
+                        // 可选，请求完成后执行（无论成功或失败，如隐藏加载动画）
+                        console.log("请求结束");
+                    }
+                    
+                });
+            }
+            
+
+        </script>
+
+    </head>
+
+
+
+    <body>
+        test
+        
+        <p id="firstp" >  </p>
+
+        <form>
+            {% csrf_token %}
+           用户名： <input type="text" id="username"/>
+            
+        </form>
+        <button onclick="firstGet()" >点我</button>
+
+    </body>
+
+
+
+</html>

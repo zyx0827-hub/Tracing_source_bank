@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>银行卡管理</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #17a2b8;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            background: rgba(255, 255, 255, .95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, .1);
+            margin: 30px auto;
+            padding: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .2);
+        }
+        
+        .btn-custom {
+            border-radius: 25px;
+            padding: 8px 20px;
+            font-weight: 600;
+            transition: all .3s ease;
+        }
+        
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .2);
+        }
+        
+        .search-box {
+            border-radius: 25px;
+            border: 2px solid #e9ecef;
+            padding: 10px 20px;
+        }
+        
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .3);
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all .3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 .2rem rgba(52, 152, 219, .25);
+            transform: translateY(-2px);
+        }
+        
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: var(--primary);
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .currency-badge {
+            font-size: .8em;
+            padding: 4px 8px;
+            border-radius: 10px;
+        }
+        
+        .card-number-input {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        
+        .auto-generate-btn {
+            border-radius: 10px;
+            margin-left: 10px;
+        }
+        
+        .amount-group {
+            position: relative;
+        }
+        
+        .amount-sync-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+        }
+        
+        .amount-sync-btn:hover {
+            color: var(--secondary);
+        }
+        
+        .card-preview {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .card-preview.show {
+            display: block;
+            animation: fadeIn .5s ease;
+        }
+        
+        .floating-action-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, .3);
+            font-size: 24px;
+            transition: all .3s ease;
+            z-index: 1000;
+        }
+        
+        .floating-action-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+        
+        .search-highlight {
+            background-color: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, .1);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .advanced-search-panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .quick-filter-btn {
+            margin: 2px;
+            font-size: 0.85rem;
+        }
+
+        /* 客户选择框样式 */
+        .customer-option {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .customer-option:last-child {
+            border-bottom: none;
+        }
+
+        /* 下拉框选中状态 */
+        .form-select:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 .2rem rgba(52, 152, 219, .25);
+        }
+
+    </style>
+</head>
+<body>
+<button class="floating-action-btn" onclick="openCreateModal()" title="新增银行卡"><i class="fas fa-plus"></i></button>
+
+<div class="container main-container">
+    <div class="header">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="display-6 fw-bold text-primary"><i class="fas fa-credit-card"></i> 银行卡</h1>
+                <p class="text-muted">管理所有银行卡信息</p>
+            </div>
+            <div class="col-md-6 text-end">
+                <button class="btn btn-success btn-custom me-2" onclick="openCreateModal()">
+                    <i class="fas fa-plus me-2"></i>新增银行卡
+                </button>
+                <button class="btn btn-outline-primary btn-custom" onclick="loadCards()">
+                    <i class="fas fa-sync-alt me-2"></i>刷新
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 搜索和筛选 -->
+    <div class="advanced-search-panel">
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="fas fa-search text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control search-box border-start-0" id="searchInput" 
+                           placeholder="卡号 / 客户ID / 币种 模糊搜索" 
+                           oninput="debouncedSearch()">
+                    <button class="btn btn-outline-info" type="button" onclick="showSearchHelp()">
+                        <i class="fas fa-question-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading" id="loadingIndicator">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2">加载中...</p>
+    </div>
+
+    <!-- 搜索结果统计 -->
+    <div id="searchStatsContainer"></div>
+
+    <div id="cardsContainer">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>卡号</th>
+                        <th>币种</th>
+                        <th>开户金额</th>
+                        <th>余额</th>
+                        <th>客户ID</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="cardsTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <nav>
+        <ul class="pagination justify-content-center" id="pagination"></ul>
+    </nav>
+</div>
+
+<!-- 银行卡模态框 -->
+<div class="modal fade" id="cardModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">新增银行卡</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="cardForm">
+                    <div class="mb-3">
+                        <label class="form-label">卡号 *</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control card-number-input" id="cardId" required pattern="\d{16,19}" title="16或19位数字">
+                            <button class="btn btn-outline-secondary auto-generate-btn" type="button" onclick="generateCardNumber()">
+                                <i class="fas fa-magic"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">币种 *</label>
+                        <select class="form-select" id="curType" required>
+                            <option value="CNY">人民币</option>
+                            <option value="USD">美元</option>
+                            <option value="EUR">欧元</option>
+                            <option value="JPY">日元</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3 amount-group">
+                                <label class="form-label">开户金额 *</label>
+                                <input type="number" class="form-control" id="openMoney" step="0.01" min="0" required>
+                                <button type="button" class="amount-sync-btn" onclick="syncToBalance()" title="同步到余额">
+                                    <i class="fas fa-arrow-down"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3 amount-group">
+                                <label class="form-label">余额 *</label>
+                                <input type="number" class="form-control" id="balance" step="0.01" min="0" required>
+                                <button type="button" class="amount-sync-btn" onclick="syncFromOpenMoney()" title="从开户金额同步">
+                                    <i class="fas fa-arrow-up"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">密码 *</label>
+                                <input type="password" class="form-control" id="password" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">客户 *</label>
+                                <select class="form-select" id="customerId" required>
+                                    <option value="">请选择客户</option>
+                                    <!-- 客户选项将通过JavaScript动态加载 -->
+                                </select>
+                                <div class="form-text">
+                                    <small><i class="fas fa-sync-alt me-1"></i> 客户列表从数据库实时加载</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="isActive" checked>
+                            <label class="form-check-label">是否激活</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="saveCard()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const API_BASE = '/api-cardinfo/'; 
+let currentPage = 1; 
+let editingCardId = null;
+let searchTimeout;
+
+/* ========== 初始化 ========== */
+document.addEventListener('DOMContentLoaded', () => { 
+    loadCards(); 
+    loadStatistics(); 
+});
+
+/* ========== 金额双向同步 ========== */
+function syncToBalance() { 
+    document.getElementById('balance').value = document.getElementById('openMoney').value; 
+}
+
+function syncFromOpenMoney() { 
+    document.getElementById('openMoney').value = document.getElementById('balance').value; 
+}
+
+/* ========== 16位银联卡号生成 ========== */
+function generateCardNumber() {
+    let prefix = '62'; // 银联开头
+    for (let i = 0; i < 16; i++) prefix += Math.floor(Math.random() * 10); // 共18位
+    document.getElementById('cardId').value = prefix;
+}
+
+/* ========== 防抖搜索 ========== */
+function debouncedSearch() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        loadCards(1);
+    }, 500);
+}
+
+/* ========== 精确查找函数 ========== */
+async function findCardExact(criteria) {
+    try {
+        console.group('🔍 精确查找银行卡');
+        console.log('查找条件:', criteria);
+        
+        const params = new URLSearchParams();
+        
+        if (criteria.card_id) {
+            params.append('card_id', criteria.card_id);
+        }
+        if (criteria.customer_id) {
+            params.append('customer_id', criteria.customer_id);
+        }
+        if (criteria.cur_type) {
+            params.append('cur_type', criteria.cur_type);
+        }
+        if (criteria.is_active !== undefined) {
+            params.append('is_active', criteria.is_active);
+        }
+        
+        const url = `${API_BASE}?${params.toString()}`;
+        console.log('精确查找URL:', url);
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('精确查找结果:', data.results);
+        
+        return data.results || [];
+        
+    } catch (error) {
+        console.error('精确查找失败:', error);
+        throw error;
+    } finally {
+        console.groupEnd();
+    }
+}
+
+// 通过卡号精确查找
+async function findCardByNumber(cardNumber) {
+    return await findCardExact({ card_id: cardNumber });
+}
+
+// 通过客户ID精确查找
+async function findCardByCustomerId(customerId) {
+    return await findCardExact({ customer_id: customerId });
+}
+
+// 通过币种查找
+async function findCardByCurrency(currency) {
+    return await findCardExact({ cur_type: currency });
+}
+
+// 查找激活/冻结的银行卡
+async function findCardByStatus(isActive) {
+    return await findCardExact({ is_active: isActive });
+}
+
+/* ========== 高级搜索函数 ========== */
+async function advancedSearch(searchTerm, options = {}) {
+    try {
+        console.group('🔍 高级搜索');
+        console.log('搜索词:', searchTerm);
+        console.log('选项:', options);
+        
+        const params = new URLSearchParams();
+        
+        if (searchTerm) {
+            params.append('search', searchTerm);
+        }
+        
+        if (options.ordering) {
+            params.append('ordering', options.ordering);
+        }
+        
+        if (options.page) {
+            params.append('page', options.page);
+        }
+        
+        const url = `${API_BASE}?${params.toString()}`;
+        console.log('高级搜索URL:', url);
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('高级搜索结果:', data);
+        
+        return data;
+        
+    } catch (error) {
+        console.error('高级搜索失败:', error);
+        throw error;
+    } finally {
+        console.groupEnd();
+    }
+}
+
+/* ========== 银行卡编辑和保存 ========== */
+async function editCard(id) {
+    try {
+        console.group('🔍 编辑银行卡');
+        console.log('银行卡ID:', id);
+        
+        const requestUrl = `${API_BASE}${id}/`;
+        const response = await fetch(requestUrl);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const card = await response.json();
+        editingCardId = id;
+        document.getElementById('modalTitle').textContent = '编辑银行卡';
+        
+        // 填充表单数据
+        const fieldMapping = {
+            'cardId': 'card_id',
+            'curType': 'cur_type', 
+            'openMoney': 'open_money',
+            'balance': 'balance',
+            'password': 'password',
+            'customerId': 'customer_id'
+        };
+        
+        Object.entries(fieldMapping).forEach(([fieldId, dataKey]) => {
+            const element = document.getElementById(fieldId);
+            if (element && card[dataKey] !== undefined && card[dataKey] !== null) {
+                element.value = card[dataKey];
+            }
+        });
+        
+        const isActiveElement = document.getElementById('isActive');
+        if (isActiveElement) {
+            isActiveElement.checked = card.is_active !== false;
+        }
+        
+        const cardIdInput = document.getElementById('cardId');
+        if (cardIdInput) {
+            cardIdInput.readOnly = true;
+            cardIdInput.title = '编辑模式下卡号不可修改';
+        }
+        
+        new bootstrap.Modal(document.getElementById('cardModal')).show();
+        console.groupEnd();
+        
+    } catch (error) { 
+        console.error('编辑银行卡失败:', error);
+        alert('加载银行卡详情失败: ' + error.message);
+    }
+}
+
+async function saveCard() {
+    const isEditMode = !!editingCardId;
+    
+    const formData = {
+        card_id: document.getElementById('cardId')?.value,
+        cur_type: document.getElementById('curType')?.value,
+        open_money: parseFloat(document.getElementById('openMoney')?.value),
+        balance: parseFloat(document.getElementById('balance')?.value),
+        password: document.getElementById('password')?.value,
+        customer_id: parseInt(document.getElementById('customerId')?.value),
+        is_active: document.getElementById('isActive')?.checked
+    };
+    
+    console.log('准备发送的数据:', formData);
+
+    // 验证客户是否已选择
+    if (!formData.customer_id) {
+        alert('请选择客户');
+        return;
+    }
+
+    // 验证必填字段
+    if (!formData.card_id || !formData.cur_type || !formData.password) {
+        alert('请填写所有必填字段');
+        return;
+    }
+
+    let url, method;
+    if (isEditMode) {
+        url = `${API_BASE}${editingCardId}/`;
+        method = 'PUT';
+    } else {
+        url = API_BASE;
+        method = 'POST';
+    }
+    
+    try {
+        const resp = await fetch(url, { 
+            method: method, 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify(formData) 
+        });
+        
+        if (!resp.ok) {
+            let errorMessage = `HTTP error! status: ${resp.status}`;
+            try {
+                const errorData = await resp.json();
+                errorMessage += `, 详情: ${JSON.stringify(errorData)}`;
+                
+                // 显示具体的字段错误
+                if (errorData.detail) {
+                    errorMessage = errorData.detail;
+                } else if (typeof errorData === 'object') {
+                    const fieldErrors = Object.entries(errorData).map(([field, msg]) => `${field}: ${msg}`).join('\n');
+                    if (fieldErrors) errorMessage = fieldErrors;
+                }
+            } catch (e) {
+                // 如果无法解析JSON错误信息，使用原始文本
+                const text = await resp.text();
+                errorMessage += `, 响应: ${text}`;
+            }
+            throw new Error(errorMessage);
+        }
+        
+        const result = await resp.json();
+        console.log('保存成功:', result);
+        
+        // 保存成功后的处理
+        alert('保存成功！');
+        
+        // 关闭模态框
+        const modal = bootstrap.Modal.getInstance(document.getElementById('cardModal'));
+        modal.hide();
+        
+        // 刷新数据
+        loadCards(currentPage);
+        loadStatistics();
+        
+        // 重置编辑状态
+        editingCardId = null;
+        
+    } catch (e) { 
+        console.error('💥 保存失败:', e);
+        alert('保存失败: ' + e.message);
+    }
+}
+
+/* ========== 数据加载和显示 ========== */
+async function loadCards(page = 1) {
+    document.getElementById('loadingIndicator').style.display = 'block';
+    document.getElementById('cardsContainer').style.display = 'none';
+    
+    const search = document.getElementById('searchInput').value;
+    
+    let url = `${API_BASE}?page=${page}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        displayCardsEnhanced(data.results || [], search);
+        setupPagination(data.count, page);
+        currentPage = page;
+        
+        if (search && data.results) {
+            showSearchStats(search, data.results.length, data.count);
+        }
+        
+    } catch (error) {
+        console.error('加载卡片失败:', error);
+        alert('加载失败: ' + error.message);
+    } finally {
+        document.getElementById('loadingIndicator').style.display = 'none';
+        document.getElementById('cardsContainer').style.display = 'block';
+    }
+}
+
+function displayCardsEnhanced(cards, searchTerm = '') {
+    const tbody = document.getElementById('cardsTableBody'); 
+    tbody.innerHTML = '';
+    
+    if (!cards.length) {
+        const noDataHtml = searchTerm ? 
+            `<tr><td colspan="6" class="text-center text-muted py-4">
+                <i class="fas fa-search fa-2x mb-3"></i><br>
+                没有找到包含 "<strong>${searchTerm}</strong>" 的银行卡记录<br>
+                <button class="btn btn-sm btn-outline-primary mt-2" onclick="clearSearch()">
+                    <i class="fas fa-times me-1"></i>清除搜索
+                </button>
+            </td></tr>` :
+            '<tr><td colspan="6" class="text-center text-muted py-4">暂无银行卡数据</td></tr>';
+        
+        tbody.innerHTML = noDataHtml;
+        return;
+    }
+    
+    cards.forEach(c => {
+        const tr = document.createElement('tr'); 
+        tr.className = 'card-item';
+        
+        // 高亮搜索词
+        let cardIdDisplay = c.card_id;
+        if (searchTerm && c.card_id.includes(searchTerm)) {
+            cardIdDisplay = c.card_id.replace(
+                new RegExp(searchTerm, 'gi'), 
+                match => `<span class="search-highlight">${match}</span>`
+            );
+        }
+        
+        tr.innerHTML = `
+            <td><strong>${cardIdDisplay}</strong></td>
+            <td><span class="badge currency-badge bg-primary">${c.cur_type}</span></td>
+            <td class="text-success fw-bold">¥${Number(c.open_money).toLocaleString()}</td>
+            <td class="text-primary fw-bold">¥${Number(c.balance).toLocaleString()}</td>
+            <td>${c.customer_id}</td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary me-1" onclick="editCard('${c.card_id}')">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteCard('${c.card_id}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>`;
+        tbody.appendChild(tr);
+    });
+}
+
+function setupPagination(total, page) {
+    const ul = document.getElementById('pagination'); 
+    ul.innerHTML = '';
+    const pages = Math.ceil(total / 10);
+    
+    if (pages <= 1) return;
+    
+    const addLi = (p, txt, active = false, disabled = false) => {
+        const li = document.createElement('li'); 
+        li.className = `page-item ${active ? 'active' : ''} ${disabled ? 'disabled' : ''}`;
+        li.innerHTML = `<a class="page-link" href="#" onclick="loadCards(${p})">${txt}</a>`; 
+        ul.appendChild(li);
+    };
+    
+    addLi(page - 1, '上一页', false, page === 1);
+    
+    // 显示页码范围
+    let startPage = Math.max(1, page - 2);
+    let endPage = Math.min(pages, page + 2);
+    
+    if (startPage > 1) {
+        addLi(1, '1');
+        if (startPage > 2) {
+            const li = document.createElement('li');
+            li.className = 'page-item disabled';
+            li.innerHTML = '<span class="page-link">...</span>';
+            ul.appendChild(li);
+        }
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+        addLi(i, i, i === page);
+    }
+    
+    if (endPage < pages) {
+        if (endPage < pages - 1) {
+            const li = document.createElement('li');
+            li.className = 'page-item disabled';
+            li.innerHTML = '<span class="page-link">...</span>';
+            ul.appendChild(li);
+        }
+        addLi(pages, pages);
+    }
+    
+    addLi(page + 1, '下一页', false, page === pages);
+}
+
+/* ========== 统计信息 ========== */
+async function loadStatistics() {
+    try {
+        // 模拟统计信息
+        // 如果需要显示统计信息，可以在这里添加
+    } catch (e) {
+        console.error('加载统计信息失败：', e);
+    }
+}
+
+/* ========== 搜索和筛选结果显示 ========== */
+function showSearchStats(searchTerm, currentCount, totalCount) {
+    const container = document.getElementById('searchStatsContainer');
+    container.innerHTML = `
+        <div class="alert alert-info mt-3">
+            <i class="fas fa-chart-bar me-2"></i>
+            搜索 "<strong>${searchTerm}</strong>" 找到 
+            <strong>${currentCount}</strong> 条记录
+            ${totalCount > currentCount ? `(共 ${totalCount} 条)` : ''}
+            <button class="btn btn-sm btn-outline-secondary ms-2" onclick="clearSearch()">
+                <i class="fas fa-times me-1"></i>清除搜索
+            </button>
+        </div>
+    `;
+}
+
+function clearSearchStats() {
+    document.getElementById('searchStatsContainer').innerHTML = '';
+}
+
+function clearSearch() {
+    document.getElementById('searchInput').value = '';
+    clearSearchStats();
+    loadCards(1);
+}
+
+/* ========== 删除银行卡 ========== */
+async function deleteCard(id) {
+    if (!confirm('确定删除这张银行卡吗？此操作不可恢复。')) return;
+    try {
+        const response = await fetch(`${API_BASE}${id}/`, { method: 'DELETE' });
+        if (response.ok) { 
+            loadCards(currentPage); 
+            loadStatistics(); 
+            alert('删除成功！'); 
+        } else {
+            throw new Error(`删除失败，状态码: ${response.status}`);
+        }
+    } catch (e) { 
+        console.error(e);
+        alert('删除失败: ' + e.message);
+    }
+}
+
+/* ========== 打开新增模态框 ========== */
+async function openCreateModal() {
+    editingCardId = null;
+    document.getElementById('modalTitle').textContent = '新增银行卡';
+    document.getElementById('cardForm').reset();
+    document.getElementById('isActive').checked = true;
+    document.getElementById('cardId').readOnly = false;
+    
+    // 生成卡号
+    generateCardNumber();
+    
+    // 加载客户数据
+    try {
+        await loadCustomers();
+    } catch (error) {
+        alert('加载客户列表失败，请检查网络连接');
+    }
+    
+    new bootstrap.Modal(document.getElementById('cardModal')).show();
+}
+
+/* ========== 搜索帮助 ========== */
+function showSearchHelp() {
+    alert(`🔍 搜索帮助：
+
+• 卡号：支持完整或部分卡号搜索
+• 客户ID：输入客户ID精确搜索  
+• 币种：输入 CNY、USD 等币种代码
+
+• 支持模糊搜索，不区分大小写
+• 示例：搜索 "62" 可找到所有以62开头的银行卡`);
+}
+
+/* ========== 测试函数 ========== */
+async function testSearchFunctions() {
+    console.log('=== 测试搜索功能 ===');
+    
+    // 精确查找示例
+    const cardsByNumber = await findCardByNumber('620842780429561749');
+    console.log('按卡号查找结果:', cardsByNumber);
+    
+    // 高级搜索示例
+    const advancedResult = await advancedSearch('62');
+    console.log('高级搜索结果:', advancedResult);
+}
+
+/* ========== 加载客户数据 ========== */
+async function loadCustomers() {
+    try {
+        console.group('👥 加载客户数据');
+        const response = await fetch('/api-userinfo/');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('客户数据:', data.results);
+        
+        const customerSelect = document.getElementById('customerId');
+        customerSelect.innerHTML = '<option value="">请选择客户</option>';
+        
+        if (data.results && data.results.length > 0) {
+            data.results.forEach(customer => {
+                const option = document.createElement('option');
+                option.value = customer.customer_id;
+                option.textContent = `${customer.customer_name} (ID: ${customer.customer_id}) - ${customer.telephone || '无手机号'}`;
+                option.title = `身份证: ${customer.pid || '无'} | 地址: ${customer.address || '无'}`;
+                customerSelect.appendChild(option);
+            });
+            console.log(`成功加载 ${data.results.length} 个客户`);
+        } else {
+            console.warn('未找到客户数据');
+            customerSelect.innerHTML = '<option value="">暂无客户数据</option>';
+        }
+        
+        console.groupEnd();
+        return data.results;
+        
+    } catch (error) {
+        console.error('加载客户数据失败:', error);
+        const customerSelect = document.getElementById('customerId');
+        customerSelect.innerHTML = '<option value="">加载失败，请刷新重试</option>';
+        throw error;
+    }
+}
+
+/* ========== 编辑银行卡时加载客户数据 ========== */
+async function editCard(id) {
+    try {
+        console.group('🔍 编辑银行卡');
+        console.log('银行卡ID:', id);
+        
+        const requestUrl = `${API_BASE}${id}/`;
+        const response = await fetch(requestUrl);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const card = await response.json();
+        editingCardId = id;
+        document.getElementById('modalTitle').textContent = '编辑银行卡';
+        
+        // 先加载客户数据
+        await loadCustomers();
+        
+        // 填充表单数据
+        const fieldMapping = {
+            'cardId': 'card_id',
+            'curType': 'cur_type', 
+            'openMoney': 'open_money',
+            'balance': 'balance',
+            'password': 'password'
+        };
+        
+        Object.entries(fieldMapping).forEach(([fieldId, dataKey]) => {
+            const element = document.getElementById(fieldId);
+            if (element && card[dataKey] !== undefined && card[dataKey] !== null) {
+                element.value = card[dataKey];
+            }
+        });
+        
+        // 设置客户选择框
+        const customerSelect = document.getElementById('customerId');
+        if (customerSelect && card.customer_id !== undefined) {
+            customerSelect.value = card.customer_id;
+        }
+        
+        const isActiveElement = document.getElementById('isActive');
+        if (isActiveElement) {
+            isActiveElement.checked = card.is_active !== false;
+        }
+        
+        const cardIdInput = document.getElementById('cardId');
+        if (cardIdInput) {
+            cardIdInput.readOnly = true;
+            cardIdInput.title = '编辑模式下卡号不可修改';
+        }
+        
+        new bootstrap.Modal(document.getElementById('cardModal')).show();
+        console.groupEnd();
+        
+    } catch (error) { 
+        console.error('编辑银行卡失败:', error);
+        alert('加载银行卡详情失败: ' + error.message);
+    }
+}
+</script>
+</body>
+</html>

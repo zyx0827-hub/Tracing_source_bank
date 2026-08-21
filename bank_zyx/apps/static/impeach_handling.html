@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>检举信息处理管理</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --primary-dark: #2980b9;
+            --secondary-color: #7f8c8d;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --government-color: #8e44ad;
+            --government-dark: #6c3483;
+            --light-color: #f8f9fa;
+            --dark-color: #2c3e50;
+            --border-color: #dfe6e9;
+            --shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            --radius: 6px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        
+        body {
+            background-color: #ecf0f1;
+            color: var(--dark-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--government-color), var(--government-dark));
+            color: white;
+            padding: 25px 30px;
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+        
+        .user-role {
+            background-color: white;
+            color: var(--government-color);
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        header p {
+            opacity: 0.9;
+            font-size: 16px;
+            margin-left: 40px;
+        }
+        
+        .permission-note {
+            background: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid white;
+            padding: 10px 15px;
+            margin-top: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .control-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background-color: var(--light-color);
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .search-box {
+            flex: 1;
+            max-width: 400px;
+            display: flex;
+            align-items: center;
+            background-color: white;
+            border-radius: var(--radius);
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+        
+        .search-box i {
+            color: var(--secondary-color);
+            margin-right: 10px;
+        }
+        
+        .search-input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 100%;
+            font-size: 15px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--radius);
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-government {
+            background-color: var(--government-color);
+            color: white;
+        }
+        
+        .btn-government:hover {
+            background-color: var(--government-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(142, 68, 173, 0.3);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .content {
+            padding: 0;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            padding: 0 10px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1200px;
+        }
+        
+        .data-table th {
+            background-color: #f8f4ff;
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark-color);
+            border-bottom: 2px solid var(--government-color);
+            font-size: 15px;
+            position: sticky;
+            top: 0;
+            white-space: nowrap;
+        }
+        
+        .data-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+            vertical-align: top;
+        }
+        
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .data-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .data-table tr:nth-child(even) {
+            background-color: #fcfcfc;
+        }
+        
+        .data-table tr:nth-child(even):hover {
+            background-color: #f5f5f5;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .status-processing {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: var(--radius);
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+        
+        .process-btn {
+            background-color: var(--government-color);
+            color: white;
+        }
+        
+        .process-btn:hover {
+            background-color: var(--government-dark);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--secondary-color);
+        }
+        
+        .empty-state i {
+            font-size: 60px;
+            margin-bottom: 20px;
+            color: #bdc3c7;
+        }
+        
+        .empty-state h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 80px;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-left-color: var(--government-color);
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8f9fa;
+            border-radius: var(--radius) var(--radius) 0 0;
+        }
+        
+        .modal-header h3 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--secondary-color);
+            line-height: 1;
+        }
+        
+        .modal-body {
+            padding: 25px;
+        }
+        
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            background-color: #f8f9fa;
+            border-radius: 0 0 var(--radius) var(--radius);
+        }
+        
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-color);
+            font-size: 14px;
+        }
+        
+        .form-group label.required::after {
+            content: " *";
+            color: var(--danger-color);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--government-color);
+            box-shadow: 0 0 0 2px rgba(142, 68, 173, 0.2);
+        }
+        
+        .form-control:disabled {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .read-only-field {
+            background-color: #f8f9fa;
+            padding: 10px 12px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            min-height: 42px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .alert {
+            padding: 12px 15px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            color: var(--secondary-color);
+            font-size: 14px;
+            background-color: #f8f9fa;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .pagination-btn {
+            padding: 8px 15px;
+            border-radius: var(--radius);
+            background-color: white;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .pagination-btn:hover:not(:disabled) {
+            background-color: var(--government-color);
+            color: white;
+            border-color: var(--government-color);
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .record-count {
+            color: var(--secondary-color);
+            font-size: 14px;
+            text-align: center;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-top: 1px solid var(--border-color);
+            font-weight: 500;
+        }
+        
+        .table-note {
+            color: var(--secondary-color);
+            font-size: 13px;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+            padding: 0 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border-top: 4px solid var(--government-color);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(142, 68, 173, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--government-color);
+        }
+        
+        .stat-content h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 5px;
+        }
+        
+        .stat-content p {
+            color: var(--secondary-color);
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .control-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                max-width: 100%;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .form-group {
+                min-width: 100%;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .stats-cards {
+                grid-template-columns: 1fr;
+                padding: 0 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <h1><i class="fas fa-landmark"></i> 检举信息处理管理 - 地方政府</h1>
+            </div>
+            <p>地方政府用户权限：可以处理检举信息、填写处理回复和处理时间、新增检举信息</p>
+        </header>
+        
+
+        <div class="control-bar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="搜索举报人、内容或ID...">
+            </div>
+            <div>
+                <button id="addBtn" class="btn btn-government">
+                    <i class="fas fa-plus"></i> 新增检举信息
+                </button>
+                <button id="refreshBtn" class="btn btn-outline">
+                    <i class="fas fa-sync-alt"></i> 刷新
+                </button>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div id="alertContainer"></div>
+            
+            <div id="loadingIndicator" class="loading">
+                <div class="spinner"></div>
+            </div>
+            
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <i class="fas fa-inbox"></i>
+                <h3>暂无检举信息</h3>
+                <p>点击"新增检举信息"按钮添加第一条记录</p>
+            </div>
+            
+            <div id="tableContainer" class="table-container" style="display: none;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>举报人姓名<br><span class="table-note">（举报人填写）</span></th>
+                            <th>问题内容<br><span class="table-note">（举报人填写）</span></th>
+                            <th>提问时间<br><span class="table-note">（举报人填写）</span></th>
+                            <th>问题状态<br><span class="table-note">（举报人填写）</span></th>
+                            <th>处理时间<br><span class="table-note">（您填写）</span></th>
+                            <th>回答内容<br><span class="table-note">（您填写）</span></th>
+                            <th>操作<br><span class="table-note">（处理检举）</span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="impeachTableBody">
+                        <!-- 数据将通过JavaScript动态填充 -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="record-count" id="recordCount">显示 0 条记录</div>
+            
+            <div class="pagination">
+                <button id="prevPage" class="pagination-btn" disabled>
+                    <i class="fas fa-chevron-left"></i> 上一页
+                </button>
+                <span id="pageInfo">第 1 页，共 1 页</span>
+                <button id="nextPage" class="pagination-btn" disabled>
+                    下一页 <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+        
+        <footer>
+            <p>检举信息管理系统 &copy; 2025 | 地方政府用户 | 处理时间和回答内容由地方政府用户填写</p>
+        </footer>
+    </div>
+    
+    <!-- 新增检举信息模态框 -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus-circle"></i> 新增检举信息</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="addImpeachForm">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name" class="required">举报人姓名</label>
+                            <input type="text" id="name" class="form-control" required placeholder="请输入举报人姓名">
+                        </div>
+                        <div class="form-group">
+                            <label for="status" class="required">问题状态</label>
+                            <select id="status" class="form-control" required>
+                                <option value="">请选择状态</option>
+                                <option value="pending">待处理</option>
+                                <option value="processing">处理中</option>
+                                <option value="completed">已处理</option>
+                                <option value="rejected">已驳回</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="create_time" class="required">提问时间（本地时间）</label>
+                            <input type="datetime-local" id="create_time" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="question" class="required">问题内容</label>
+                        <textarea id="question" class="form-control form-textarea" required placeholder="请详细描述检举问题..."></textarea>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        作为地方政府用户，您也可以填写处理回复，但建议在处理检举时填写
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-government">提交检举</button>
+                    <button type="button" class="btn btn-outline close-modal">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 处理检举信息模态框 -->
+    <div id="processModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit"></i> 处理检举信息</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="processImpeachForm">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>ID</label>
+                            <div class="read-only-field">#<span id="processId">-</span></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>举报人姓名</label>
+                            <div class="read-only-field" id="processName">-</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>提问时间</label>
+                            <div class="read-only-field" id="processCreateTime">-</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>问题状态</label>
+                            <div class="read-only-field" id="processStatus">-</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>问题内容</label>
+                        <div class="read-only-field" style="min-height: 100px;" id="processQuestion">-</div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="process_time" class="required">处理时间（本地时间）</label>
+                            <input type="datetime-local" id="process_time" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="processAnswer" class="required">回答内容</label>
+                        <textarea id="processAnswer" class="form-control form-textarea" required placeholder="请输入处理回复..."></textarea>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-user-tie"></i>
+                        您作为地方政府用户正在处理此检举信息
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-government">提交处理</button>
+                    <button type="button" class="btn btn-outline close-modal">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // API基础URL - 请根据实际情况修改
+            const API_BASE_URL = '/api-impeachform/';
+            
+            // 全局状态
+            let currentPage = 1;
+            let totalPages = 1;
+            let totalCount = 0;
+            let searchQuery = '';
+            let ordering = '-create_time';
+            let currentProcessId = null;
+            let allImpeachData = [];
+            
+            // 用户角色状态 - 固定为地方政府用户
+            const currentUserRole = 'government';
+            
+            
+            // 页面元素
+            const $tableBody = $('#impeachTableBody');
+            const $loadingIndicator = $('#loadingIndicator');
+            const $emptyState = $('#emptyState');
+            const $tableContainer = $('#tableContainer');
+            const $recordCount = $('#recordCount');
+            const $pageInfo = $('#pageInfo');
+            const $prevPage = $('#prevPage');
+            const $nextPage = $('#nextPage');
+            const $searchInput = $('#searchInput');
+            const $addBtn = $('#addBtn');
+            const $refreshBtn = $('#refreshBtn');
+            const $alertContainer = $('#alertContainer');
+            const $addModal = $('#addModal');
+            const $processModal = $('#processModal');
+            const $modalClose = $('.close-modal');
+            
+            // 统计元素
+            const $totalCount = $('#totalCount');
+            const $pendingCount = $('#pendingCount');
+            const $processingCount = $('#processingCount');
+            const $completedCount = $('#completedCount');
+            
+            // 初始化页面
+            fetchImpeachData();
+            
+            // 搜索功能
+            let searchTimeout;
+            $searchInput.on('keyup', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function() {
+                    searchQuery = $searchInput.val().trim();
+                    currentPage = 1;
+                    fetchImpeachData();
+                }, 500);
+            });
+            
+            // 新增检举按钮
+            $addBtn.on('click', function() {
+                // 设置当前本地时间为默认值
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const localDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+                
+                $('#create_time').val(localDateTime);
+                
+                $('#addImpeachForm')[0].reset();
+                $('#status').val('pending');
+                $addModal.fadeIn();
+            });
+            
+            // 刷新按钮
+            $refreshBtn.on('click', function() {
+                searchQuery = '';
+                $searchInput.val('');
+                currentPage = 1;
+                fetchImpeachData();
+                showAlert('数据已刷新', 'info');
+            });
+            
+            // 分页功能
+            $prevPage.on('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    fetchImpeachData();
+                }
+            });
+            
+            $nextPage.on('click', function() {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    fetchImpeachData();
+                }
+            });
+            
+            // 添加检举信息
+            $('#addImpeachForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                const name = $('#name').val().trim();
+                const question = $('#question').val().trim();
+                const status = $('#status').val();
+                const createTime = $('#create_time').val();
+                
+                if (!name || !question || !status || !createTime) {
+                    showAlert('请填写所有必填字段', 'error');
+                    return;
+                }
+                
+                // 使用本地时间直接存储（前端显示时会使用本地时间）
+                const createDateTime = new Date(createTime).toISOString();
+                
+                const formData = {
+                    name: name,
+                    question: question,
+                    status: status,
+                    create_time: createDateTime,
+                    answer: '', // 回答内容为空，可以在处理时填写
+                    process_time: null, // 处理时间为空，可以在处理时填写
+                    is_deleted: 0
+                };
+                
+                $.ajax({
+                    url: API_BASE_URL,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function(response) {
+                        showAlert('检举信息提交成功', 'success');
+                        $addModal.fadeOut();
+                        fetchImpeachData(); // 刷新列表
+                    },
+                    error: function(xhr) {
+                        showAlert('提交失败: ' + (xhr.responseJSON?.detail || '未知错误'), 'error');
+                    }
+                });
+            });
+            
+            // 处理按钮点击事件
+            $(document).on('click', '.process-btn', function() {
+                const id = $(this).data('id');
+                showProcessModal(id);
+            });
+            
+            // 打开处理模态框
+            function showProcessModal(id) {
+                currentProcessId = id;
+                
+                $.ajax({
+                    url: API_BASE_URL + id + '/',
+                    method: 'GET',
+                    success: function(data) {
+                        // 填充模态框内容
+                        $('#processId').text(data.id);
+                        $('#processName').text(data.name);
+                        $('#processQuestion').text(data.question);
+                        $('#processCreateTime').text(formatLocalDateTime(data.create_time));
+                        $('#processStatus').text(getStatusText(data.status));
+                        
+                        // 设置处理时间为当前本地时间
+                        const now = new Date();
+                        const year = now.getFullYear();
+                        const month = String(now.getMonth() + 1).padStart(2, '0');
+                        const day = String(now.getDate()).padStart(2, '0');
+                        const hours = String(now.getHours()).padStart(2, '0');
+                        const minutes = String(now.getMinutes()).padStart(2, '0');
+                        const localDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+                        
+                        $('#process_time').val(localDateTime);
+                        
+                        // 如果已有回答内容，则填充
+                        if (data.answer) {
+                            $('#processAnswer').val(data.answer);
+                        } else {
+                            $('#processAnswer').val(''); // 清空回答内容
+                        }
+                        
+                        // 显示模态框
+                        $processModal.fadeIn();
+                    },
+                    error: function(xhr) {
+                        showAlert('获取详情失败: ' + (xhr.responseJSON?.detail || '未知错误'), 'error');
+                    }
+                });
+            }
+            
+            // 处理检举信息
+            $('#processImpeachForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                if (!currentProcessId) return;
+                
+                const answer = $('#processAnswer').val().trim();
+                const processTime = $('#process_time').val();
+                
+                if (!answer || !processTime) {
+                    showAlert('请填写所有必填字段', 'error');
+                    return;
+                }
+                
+                // 转换时间格式为ISO格式
+                const processDateTime = new Date(processTime).toISOString();
+                
+                const updatedData = {
+                    answer: answer,
+                    process_time: processDateTime,
+                    status: 'completed' // 处理完成后自动标记为"已处理"
+                };
+                
+                $.ajax({
+                    url: API_BASE_URL + currentProcessId + '/',
+                    method: 'PATCH',
+                    contentType: 'application/json',
+                    data: JSON.stringify(updatedData),
+                    success: function(response) {
+                        showAlert('检举信息处理完成', 'success');
+                        fetchImpeachData(); // 刷新列表
+                        $processModal.fadeOut();
+                    },
+                    error: function(xhr) {
+                        showAlert('处理失败: ' + (xhr.responseJSON?.detail || '未知错误'), 'error');
+                    }
+                });
+            });
+            
+            // 关闭模态框
+            $modalClose.on('click', function() {
+                $addModal.fadeOut();
+                $processModal.fadeOut();
+            });
+            
+            // 点击模态框外部关闭
+            $(window).on('click', function(e) {
+                if ($(e.target).hasClass('modal')) {
+                    $addModal.fadeOut();
+                    $processModal.fadeOut();
+                }
+            });
+            
+            // 获取检举数据
+            function fetchImpeachData() {
+                $loadingIndicator.show();
+                $tableContainer.hide();
+                $emptyState.hide();
+                
+                let url = API_BASE_URL + '?page=' + currentPage + '&ordering=' + ordering;
+                
+                if (searchQuery) {
+                    url += '&search=' + encodeURIComponent(searchQuery);
+                }
+                
+                $.ajax({
+                    url: url,
+                    method: 'GET',
+                    success: function(data) {
+                        allImpeachData = data.results || [];
+                        displayImpeachData(data);
+                        updateStats(allImpeachData);
+                    },
+                    error: function(xhr) {
+                        showAlert('获取数据失败: ' + (xhr.responseJSON?.detail || '未知错误'), 'error');
+                        $loadingIndicator.hide();
+                        $emptyState.show();
+                    }
+                });
+            }
+            
+            // 更新统计信息
+            function updateStats(data) {
+                $totalCount.text(data.length);
+                
+                const pending = data.filter(item => item.status === 'pending').length;
+                const processing = data.filter(item => item.status === 'processing').length;
+                const completed = data.filter(item => item.status === 'completed').length;
+                
+                $pendingCount.text(pending);
+                $processingCount.text(processing);
+                $completedCount.text(completed);
+            }
+            
+            // 显示检举数据
+            function displayImpeachData(data) {
+                $loadingIndicator.hide();
+                
+                totalCount = data.count || data.results.length;
+                totalPages = Math.ceil(totalCount / 10) || 1;
+                
+                $recordCount.text('显示 ' + totalCount + ' 条记录');
+                $pageInfo.text('第 ' + currentPage + ' 页，共 ' + totalPages + ' 页');
+                
+                // 更新分页按钮状态
+                $prevPage.prop('disabled', currentPage <= 1);
+                $nextPage.prop('disabled', currentPage >= totalPages);
+                
+                if (totalCount === 0) {
+                    $emptyState.show();
+                    $tableContainer.hide();
+                    return;
+                }
+                
+                $emptyState.hide();
+                $tableContainer.show();
+                
+                // 清空表格
+                $tableBody.empty();
+                
+                // 填充表格数据
+                const displayData = data.results || data;
+                displayData.forEach(function(item) {
+                    const statusBadge = getStatusBadge(item.status);
+                    const createTime = formatLocalDateTime(item.create_time);
+                    const processTime = item.process_time ? formatLocalDateTime(item.process_time) : '-';
+                    const questionPreview = item.question.length > 60 ? 
+                        item.question.substring(0, 60) + '...' : item.question;
+                    const answerPreview = item.answer ? 
+                        (item.answer.length > 60 ? item.answer.substring(0, 60) + '...' : item.answer) : '-';
+                    
+                    // 地方政府用户始终可以处理
+                    const canProcess = true;
+                    
+                    const row = `
+                        <tr>
+                            <td>${item.id}</td>
+                            <td>${escapeHtml(item.name)}</td>
+                            <td>${escapeHtml(questionPreview)}</td>
+                            <td>${createTime}</td>
+                            <td>${statusBadge}</td>
+                            <td>${processTime}</td>
+                            <td>${escapeHtml(answerPreview)}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn process-btn" data-id="${item.id}">
+                                        <i class="fas fa-edit"></i> 处理
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    
+                    $tableBody.append(row);
+                });
+            }
+            
+            // 获取状态徽章HTML
+            function getStatusBadge(status) {
+                let badgeClass = '';
+                let badgeText = '';
+                
+                switch(status) {
+                    case 'pending':
+                        badgeClass = 'status-pending';
+                        badgeText = '待处理';
+                        break;
+                    case 'processing':
+                        badgeClass = 'status-processing';
+                        badgeText = '处理中';
+                        break;
+                    case 'completed':
+                        badgeClass = 'status-completed';
+                        badgeText = '已处理';
+                        break;
+                    case 'rejected':
+                        badgeClass = 'status-rejected';
+                        badgeText = '已驳回';
+                        break;
+                    default:
+                        badgeClass = 'status-pending';
+                        badgeText = status;
+                }
+                
+                return `<span class="status-badge ${badgeClass}">${badgeText}</span>`;
+            }
+            
+            // 获取状态文本
+            function getStatusText(status) {
+                switch(status) {
+                    case 'pending': return '待处理';
+                    case 'processing': return '处理中';
+                    case 'completed': return '已处理';
+                    case 'rejected': return '已驳回';
+                    default: return status;
+                }
+            }
+            
+            // 格式化本地日期时间
+            function formatLocalDateTime(dateTimeString) {
+                if (!dateTimeString) return '-';
+                
+                const date = new Date(dateTimeString);
+                
+                // 转换为本地时间格式
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                
+                return `${year}-${month}-${day} ${hours}:${minutes}`;
+            }
+            
+            // 显示提示消息
+            function showAlert(message, type) {
+                const alertClass = type === 'success' ? 'alert-success' : 
+                                 type === 'error' ? 'alert-error' : 'alert-info';
+                
+                const alertIcon = type === 'success' ? 'fa-check-circle' : 
+                                type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+                
+                const alertHtml = `
+                    <div class="alert ${alertClass}">
+                        <i class="fas ${alertIcon}"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+                
+                $alertContainer.html(alertHtml);
+                
+                // 3秒后自动消失
+                setTimeout(function() {
+                    $alertContainer.empty();
+                }, 3000);
+            }
+            
+            // 转义HTML防止XSS攻击
+            function escapeHtml(text) {
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                
+                return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            }
+            
+            // 初始加载完成后显示提示
+            setTimeout(function() {
+                showAlert(`欢迎您，${currentUserName}（地方政府用户）。您可以处理检举信息、填写处理回复和处理时间。`, 'info');
+            }, 800);
+        });
+    </script>
+</body>
+</html>

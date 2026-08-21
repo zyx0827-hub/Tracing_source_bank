@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>银行交易管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background-color: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .transaction-table {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .transaction-table thead {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .transaction-table th {
+            border: none;
+            padding: 15px 12px;
+            font-weight: 600;
+        }
+        
+        .transaction-table td {
+            padding: 12px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .transaction-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .transaction-table tr:hover {
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+        
+        .badge-deposit {
+            background-color: var(--success-color);
+        }
+        
+        .badge-withdraw {
+            background-color: var(--danger-color);
+        }
+        
+        .badge-transfer {
+            background-color: var(--warning-color);
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-box .form-control {
+            padding-left: 40px;
+            border-radius: 20px;
+            border: 1px solid #ced4da;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        
+        .amount-positive {
+            color: var(--success-color);
+            font-weight: 600;
+        }
+        
+        .amount-negative {
+            color: var(--danger-color);
+            font-weight: 600;
+        }
+        
+        .card-number {
+            font-family: 'Courier New', monospace;
+        }
+        
+        .stats-card {
+            text-align: center;
+            padding: 20px 15px;
+        }
+        
+        .stats-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .stats-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stats-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .footer {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 0;
+            margin-top: 40px;
+        }
+        
+        .action-buttons .btn {
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .modal-content {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+        
+        .no-results i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #dee2e6;
+        }
+        
+        .pagination {
+            margin-bottom: 0;
+        }
+        
+        .pagination-info {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1055;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        /* 分页样式优化 */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .page-item.active .page-link {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .page-link {
+            color: var(--primary-color);
+            border: 1px solid #dee2e6;
+        }
+        
+        .page-link:hover {
+            color: var(--dark-color);
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+        }
+        
+        .page-jump {
+            display: flex;
+            align-items: center;
+            margin-left: 15px;
+        }
+        
+        .page-jump input {
+            width: 70px;
+            margin-right: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .transaction-table {
+                font-size: 0.85rem;
+            }
+            
+            .transaction-table th,
+            .transaction-table td {
+                padding: 8px 5px;
+            }
+            
+            .stats-number {
+                font-size: 1.5rem;
+            }
+            
+            .action-buttons .btn {
+                width: 100%;
+                margin-right: 0;
+            }
+            
+            .pagination .page-link {
+                padding: 0.375rem 0.5rem;
+            }
+            
+            .toast-container {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+            }
+            
+            .pagination-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .page-jump {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+
+    <!-- 主要内容 -->
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="mb-4"></h2>
+            </div>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card stats-card">
+                    <div class="stats-icon text-primary">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="stats-number" id="totalTransactions">0</div>
+                    <div class="stats-label">总交易数</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stats-card">
+                    <div class="stats-icon text-success">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="stats-number" id="depositCount">0</div>
+                    <div class="stats-label">存款交易</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stats-card">
+                    <div class="stats-icon text-danger">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="stats-number" id="withdrawCount">0</div>
+                    <div class="stats-label">取款交易</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stats-card">
+                    <div class="stats-icon text-warning">
+                        <i class="fas fa-random"></i>
+                    </div>
+                    <div class="stats-number" id="transferCount">0</div>
+                    <div class="stats-label">转账交易</div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- 搜索和过滤 -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="form-control" id="searchInput" placeholder="输入银行卡号或交易ID进行搜索...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="typeFilter">
+                    <option value="">所有交易类型</option>
+                    <option value="存款">存款</option>
+                    <option value="取款">取款</option>
+                    <option value="转账">转账</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-primary w-100" id="resetFilters">
+                    <i class="fas fa-redo me-1"></i>重置筛选
+                </button>
+            </div>
+        </div>
+
+        <!-- 交易记录表格 -->
+        <div class="card transaction-table">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-list me-2"></i>最新交易</h5>
+                <span class="pagination-info" id="paginationInfo">显示 0 条记录</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="transactionTable">
+                        <thead>
+                            <tr>
+                                <th>交易ID</th>
+                                <th>交易类型</th>
+                                <th>交易日期</th>
+                                <th>交易金额</th>
+                                <th>银行卡号</th>
+                                <th>备注</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionRecords">
+                            <!-- 交易记录将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="noResults" class="no-results" style="display: none;">
+                    <i class="fas fa-search"></i>
+                    <h4>未找到匹配的交易记录</h4>
+                    <p>请尝试调整搜索条件或筛选条件</p>
+                </div>
+                <div id="loadingIndicator" class="loading" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">加载中...</span>
+                    </div>
+                    <p class="mt-2">加载交易数据中...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 分页 -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="pagination-container">
+                    <div class="pagination-info" id="pageInfo">第 1 页，共 1 页</div>
+                    <div class="d-flex align-items-center">
+                        <nav>
+                            <ul class="pagination" id="pagination">
+                                <!-- 分页将通过JavaScript动态生成 -->
+                            </ul>
+                        </nav>
+                        <div class="page-jump">
+                            <input type="number" class="form-control form-control-sm" id="pageJumpInput" min="1" value="1">
+                            <button class="btn btn-sm btn-outline-primary" id="pageJumpButton">跳转</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 存款模态框 -->
+    <!-- 存款模态框 -->
+    <div class="modal fade" id="depositModal" tabindex="-1" aria-labelledby="depositModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="depositModalLabel"><i class="fas fa-arrow-down me-2"></i>存款操作</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="depositForm">
+                        <div class="mb-3">
+                            <label for="depositCard" class="form-label">银行卡号 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="depositCard" placeholder="请输入银行卡号" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="depositAmount" class="form-label">存款金额 <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="depositAmount" placeholder="请输入存款金额" min="0.01" step="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="depositNote" class="form-label">拨款类型 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="depositNote" required>
+                                <option value="" selected disabled>请选择拨款类型</option>
+                                <option value="文化产业">文化产业</option>
+                                <option value="教育">教育</option>
+                                <option value="医疗">医疗</option>
+                                <option value="基建">基建</option>
+                                <option value="农业">农业</option>
+                                <option value="科技">科技</option>
+                                <option value="社会福利">社会福利</option>
+                                <option value="其他">其他</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-success" id="submitDeposit">确认存款</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 取款模态框 -->
+    <!-- 取款模态框 -->
+    <div class="modal fade" id="withdrawModal" tabindex="-1" aria-labelledby="withdrawModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="withdrawModalLabel"><i class="fas fa-arrow-up me-2"></i>取款操作</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="withdrawForm">
+                        <div class="mb-3">
+                            <label for="withdrawCard" class="form-label">银行卡号 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="withdrawCard" placeholder="请输入银行卡号" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="withdrawAmount" class="form-label">取款金额 <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="withdrawAmount" placeholder="请输入取款金额" min="0.01" step="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="withdrawNote" class="form-label">用途 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="withdrawNote" required>
+                                <option value="" selected disabled>请选择用途类型</option>
+                                <option value="文化产业支出">文化产业支出</option>
+                                <option value="教育支出">教育支出</option>
+                                <option value="医疗支出">医疗支出</option>
+                                <option value="基建设施">基建设施</option>
+                                <option value="农业补贴">农业补贴</option>
+                                <option value="科研经费">科研经费</option>
+                                <option value="社会福利">社会福利</option>
+                                <option value="其他支出">其他支出</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-danger" id="submitWithdraw">确认取款</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 转账模态框 -->
+    <!-- 转账模态框 -->
+    <div class="modal fade" id="transferModal" tabindex="-1" aria-labelledby="transferModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="transferModalLabel"><i class="fas fa-random me-2"></i>转账操作</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="transferForm">
+                        <div class="mb-3">
+                            <label for="fromCard" class="form-label">转出银行卡号 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="fromCard" placeholder="请输入转出银行卡号" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="toCard" class="form-label">转入银行卡号 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="toCard" placeholder="请输入转入银行卡号" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="transferAmount" class="form-label">转账金额 <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="transferAmount" placeholder="请输入转账金额" min="0.01" step="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="transferNote" class="form-label">用途 <span class="text-danger">*</span></label>
+                            <select class="form-select" id="transferNote" required>
+                                <option value="" selected disabled>请选择转账用途</option>
+                                <option value="财政拨款-文化产业">财政拨款-文化产业</option>
+                                <option value="财政拨款-教育">财政拨款-教育</option>
+                                <option value="财政拨款-医疗">财政拨款-医疗</option>
+                                <option value="财政拨款-基建">财政拨款-基建</option>
+                                <option value="财政拨款-农业">财政拨款-农业</option>
+                                <option value="财政拨款-科技">财政拨款-科技</option>
+                                <option value="内部转账">内部转账</option>
+                                <option value="其他转账">其他转账</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-warning" id="submitTransfer">确认转账</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer mt-5">
+    </footer>
+
+    <!-- Toast 消息容器 -->
+    <div class="toast-container">
+        <!-- Toast 消息将通过JavaScript动态生成 -->
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 全局变量
+        let transactions = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let filteredTransactions = [];
+        let totalTransactions = 0;
+        let totalPages = 1;
+
+        // API基础URL
+        const API_BASE = '/api-tradeinfo/';
+        const CARD_API_BASE = '/api-cardinfo/'; // 银行卡信息API
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTransactionsFromAPI();
+            setupEventListeners();
+        });
+
+        // 从API加载交易数据
+        // 从API加载交易数据
+        async function loadTransactionsFromAPI() {
+            try {
+                showLoading(true);
+                
+                // 构建查询参数
+                const params = new URLSearchParams({
+                    page: currentPage,
+                    page_size: itemsPerPage
+                });
+                
+                // 添加搜索参数 - 修改为支持卡号和交易ID查询
+                const searchTerm = document.getElementById('searchInput').value;
+                if (searchTerm) {
+                    // 判断是交易ID还是银行卡号
+                    if (/^\d+$/.test(searchTerm)) {
+                        // 纯数字，优先查询交易ID
+                        params.append('tid', searchTerm);
+                    } else if (/^\d+(\s*\*\*\*\*\*\s*\d+)?$/.test(searchTerm)) {
+                        // 包含星号或纯数字的银行卡号格式
+                        params.append('card', searchTerm.replace(/\s+/g, ''));
+                    } else {
+                        // 其他情况作为银行卡号处理
+                        params.append('card__icontains', searchTerm);
+                    }
+                }
+                
+                // 添加排序参数（按交易日期降序）
+                params.append('ordering', '-trans_date');
+                
+                const response = await fetch(`${API_BASE}?${params}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // 使用后端返回的数据格式
+                transactions = data.results || [];
+                totalTransactions = data.count || 0;
+                totalPages = Math.ceil(totalTransactions / itemsPerPage);
+                
+                // 更新筛选后的数据
+                filteredTransactions = [...transactions];
+                
+                updateStats();
+                displayTransactions();
+                setupPagination();
+                
+                if (transactions.length > 0) {
+                    showToast(`成功加载 ${transactions.length} 条交易记录`, 'success');
+                } else {
+                    showToast('没有找到交易记录', 'info');
+                }
+                
+            } catch (error) {
+                console.error('加载交易数据出错:', error);
+                showToast('加载交易数据失败: ' + error.message, 'danger');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 修复获取银行卡信息的方法
+        async function getCardInfo(cardId) {
+            try {
+                console.log('正在获取银行卡信息，卡号:', cardId);
+                
+                // 确保使用精确匹配
+                const response = await fetch(`${CARD_API_BASE}?card_id=${cardId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('银行卡API返回数据:', data);
+                
+                // 精确匹配目标银行卡
+                let targetCard = null;
+                
+                if (data.results && data.results.length > 0) {
+                    // 在结果数组中查找精确匹配的银行卡
+                    targetCard = data.results.find(card => card.card_id === cardId);
+                } else if (Array.isArray(data) && data.length > 0) {
+                    targetCard = data.find(card => card.card_id === cardId);
+                }
+                
+                if (!targetCard) {
+                    throw new Error(`银行卡 ${cardId} 不存在`);
+                }
+                
+                console.log('找到目标银行卡:', targetCard);
+                return targetCard;
+                
+            } catch (error) {
+                console.error('获取银行卡信息出错:', error);
+                throw error;
+            }
+        }
+
+
+        // 修复更新银行卡余额的方法
+        async function updateCardBalance(cardId, newBalance) {
+            try {
+                console.log('开始更新银行卡余额，卡号:', cardId, '新余额:', newBalance);
+                
+                // 首先获取银行卡信息
+                const cardInfo = await getCardInfo(cardId);
+                if (!cardInfo) {
+                    throw new Error('银行卡不存在，无法更新余额');
+                }
+
+                console.log('获取到的银行卡信息:', cardInfo);
+                
+                // 验证卡号匹配
+                if (cardInfo.card_id !== cardId) {
+                    throw new Error(`卡号不匹配: 期望 ${cardId}, 实际 ${cardInfo.card_id}`);
+                }
+                
+                // 确定银行卡的ID
+                const cardDbId = cardInfo.id || cardInfo.card_id;
+                if (!cardDbId) {
+                    throw new Error('无法获取银行卡的数据库ID');
+                }
+
+                // 构建更新数据
+                const updateData = {
+                    balance: newBalance.toString()
+                };
+                
+                // 使用正确的更新URL
+                const updateUrl = `${CARD_API_BASE}${cardDbId}/`;
+                
+                console.log('更新URL:', updateUrl);
+                console.log('更新数据:', updateData);
+                
+                // 使用 PATCH 方法更新
+                const response = await fetch(updateUrl, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('更新余额API错误响应:', errorText);
+                    throw new Error(`更新余额失败: ${response.status}`);
+                }
+
+                const result = await response.json();
+                console.log('余额更新成功，返回结果:', result);
+                
+                // 验证更新后的余额
+                if (parseFloat(result.balance) !== newBalance) {
+                    console.warn('余额更新可能未生效，期望:', newBalance, '实际:', result.balance);
+                }
+                
+                return result;
+                
+            } catch (error) {
+                console.error('更新银行卡余额出错:', error);
+                throw error;
+            }
+        }
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 搜索功能
+            document.getElementById('searchInput').addEventListener('input', debounce(function() {
+                currentPage = 1;
+                loadTransactionsFromAPI();
+            }, 500));
+            
+            // 类型筛选
+            document.getElementById('typeFilter').addEventListener('change', function() {
+                filterTransactions();
+            });
+            
+            // 重置筛选
+            document.getElementById('resetFilters').addEventListener('click', function() {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('typeFilter').value = '';
+                currentPage = 1;
+                loadTransactionsFromAPI();
+                showToast('筛选条件已重置', 'info');
+            });
+            
+            // 存款提交
+            document.getElementById('submitDeposit').addEventListener('click', function() {
+                processDeposit();
+            });
+            
+            // 取款提交
+            document.getElementById('submitWithdraw').addEventListener('click', function() {
+                processWithdraw();
+            });
+            
+            // 转账提交
+            document.getElementById('submitTransfer').addEventListener('click', function() {
+                processTransfer();
+            });
+            
+            // 刷新数据
+            document.getElementById('refreshData').addEventListener('click', function() {
+                currentPage = 1;
+                loadTransactionsFromAPI();
+                showToast('数据已刷新', 'success');
+            });
+            
+            // 导出数据
+            document.getElementById('exportData').addEventListener('click', function() {
+                exportData();
+            });
+            
+            // 导入数据
+            document.getElementById('importData').addEventListener('click', function() {
+                showToast('导入功能需要后端API支持', 'info');
+            });
+            
+            // 页面跳转
+            document.getElementById('pageJumpButton').addEventListener('click', function() {
+                const page = parseInt(document.getElementById('pageJumpInput').value);
+                if (page >= 1 && page <= totalPages && page !== currentPage) {
+                    currentPage = page;
+                    loadTransactionsFromAPI();
+                }
+            });
+            
+            // 清除数据
+            document.getElementById('clearData').addEventListener('click', function() {
+                if (confirm('确定要清除所有数据吗？此操作不可恢复。')) {
+                    transactions = [];
+                    filteredTransactions = [];
+                    totalTransactions = 0;
+                    currentPage = 1;
+                    updateStats();
+                    displayTransactions();
+                    setupPagination();
+                    showToast('前端数据已清除', 'warning');
+                }
+            });
+        }
+
+        // 防抖函数
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // 更新统计信息 - 适配后端字段
+        function updateStats() {
+            const total = totalTransactions;
+            const depositCount = transactions.filter(t => 
+                (t.trans_type === '存款' || t.trans_type === 'deposit')
+            ).length;
+            const withdrawCount = transactions.filter(t => 
+                (t.trans_type === '取款' || t.trans_type === 'withdraw')
+            ).length;
+            const transferCount = transactions.filter(t => 
+                (t.trans_type === '转账' || t.trans_type === 'transfer')
+            ).length;
+            
+            document.getElementById('totalTransactions').textContent = total;
+            document.getElementById('depositCount').textContent = depositCount;
+            document.getElementById('withdrawCount').textContent = withdrawCount;
+            document.getElementById('transferCount').textContent = transferCount;
+        }
+
+        // 显示交易记录 - 适配后端字段
+        function displayTransactions() {
+            const tbody = document.getElementById('transactionRecords');
+            const noResults = document.getElementById('noResults');
+            const paginationInfo = document.getElementById('paginationInfo');
+            
+            if (filteredTransactions.length === 0) {
+                tbody.innerHTML = '';
+                noResults.style.display = 'block';
+                paginationInfo.textContent = '显示 0 条记录';
+                return;
+            }
+            
+            noResults.style.display = 'none';
+            
+            tbody.innerHTML = '';
+            
+            filteredTransactions.forEach(transaction => {
+                const row = document.createElement('tr');
+                
+                // 使用后端字段名
+                const transactionType = transaction.trans_type || '';
+                let typeClass = '';
+                if (transactionType === '存款' || transactionType === 'deposit') typeClass = 'badge-deposit';
+                else if (transactionType === '取款' || transactionType === 'withdraw') typeClass = 'badge-withdraw';
+                else if (transactionType === '转账' || transactionType === 'transfer') typeClass = 'badge-transfer';
+                
+                // 金额处理
+                const amount = parseFloat(transaction.trans_money || 0);
+                const amountClass = amount >= 0 ? 'amount-positive' : 'amount-negative';
+                const amountSign = amount >= 0 ? '+' : '';
+                const formattedAmount = amountSign + '￥' + Math.abs(amount).toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                
+                // 卡号处理
+                const cardNumber = transaction.card || '';
+                const formattedCardNumber = formatCardNumber(cardNumber);
+                
+                // 日期处理
+                const date = formatDate(transaction.trans_date || '');
+                
+                row.innerHTML = `
+                    <td>${transaction.tid}</td>
+                    <td><span class="badge ${typeClass}">${transactionType}</span></td>
+                    <td>${date}</td>
+                    <td class="${amountClass}">${formattedAmount}</td>
+                    <td class="card-number">${formattedCardNumber}</td>
+                    <td>${transaction.remark || ''}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            // 更新分页信息
+            const startDisplayIndex = (currentPage - 1) * itemsPerPage + 1;
+            const endDisplayIndex = Math.min(startDisplayIndex + filteredTransactions.length - 1, totalTransactions);
+            paginationInfo.textContent = `显示 ${startDisplayIndex}-${endDisplayIndex} 条，共 ${totalTransactions} 条记录`;
+        }
+
+        // 设置分页
+        function setupPagination() {
+            const pagination = document.getElementById('pagination');
+            const pageInfo = document.getElementById('pageInfo');
+            const pageJumpInput = document.getElementById('pageJumpInput');
+            
+            // 更新页面信息
+            pageInfo.textContent = `第 ${currentPage} 页，共 ${totalPages} 页，${totalTransactions} 条记录`;
+            pageJumpInput.value = currentPage;
+            pageJumpInput.max = totalPages;
+            
+            pagination.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+            
+            // 添加上一页按钮
+            const prevLi = document.createElement('li');
+            prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+            prevLi.innerHTML = `<a class="page-link" href="#" aria-label="上一页">&laquo;</a>`;
+            prevLi.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (currentPage > 1) {
+                    currentPage--;
+                    loadTransactionsFromAPI();
+                }
+            });
+            pagination.appendChild(prevLi);
+            
+            // 计算显示的页码范围
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+            
+            // 确保显示5个页码，如果可能的话
+            if (endPage - startPage < 4) {
+                if (startPage === 1) {
+                    endPage = Math.min(totalPages, startPage + 4);
+                } else {
+                    startPage = Math.max(1, endPage - 4);
+                }
+            }
+            
+            // 添加第一页和省略号
+            if (startPage > 1) {
+                const firstLi = document.createElement('li');
+                firstLi.className = 'page-item';
+                firstLi.innerHTML = `<a class="page-link" href="#">1</a>`;
+                firstLi.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    currentPage = 1;
+                    loadTransactionsFromAPI();
+                });
+                pagination.appendChild(firstLi);
+                
+                if (startPage > 2) {
+                    const ellipsisLi = document.createElement('li');
+                    ellipsisLi.className = 'page-item disabled';
+                    ellipsisLi.innerHTML = `<span class="page-link">...</span>`;
+                    pagination.appendChild(ellipsisLi);
+                }
+            }
+            
+            // 添加页码按钮
+            for (let i = startPage; i <= endPage; i++) {
+                const pageLi = document.createElement('li');
+                pageLi.className = `page-item ${currentPage === i ? 'active' : ''}`;
+                pageLi.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                pageLi.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    currentPage = i;
+                    loadTransactionsFromAPI();
+                });
+                pagination.appendChild(pageLi);
+            }
+            
+            // 添加最后一页和省略号
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const ellipsisLi = document.createElement('li');
+                    ellipsisLi.className = 'page-item disabled';
+                    ellipsisLi.innerHTML = `<span class="page-link">...</span>`;
+                    pagination.appendChild(ellipsisLi);
+                }
+                
+                const lastLi = document.createElement('li');
+                lastLi.className = 'page-item';
+                lastLi.innerHTML = `<a class="page-link" href="#">${totalPages}</a>`;
+                lastLi.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    currentPage = totalPages;
+                    loadTransactionsFromAPI();
+                });
+                pagination.appendChild(lastLi);
+            }
+            
+            // 添加下一页按钮
+            const nextLi = document.createElement('li');
+            nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+            nextLi.innerHTML = `<a class="page-link" href="#" aria-label="下一页">&raquo;</a>`;
+            nextLi.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    loadTransactionsFromAPI();
+                }
+            });
+            pagination.appendChild(nextLi);
+        }
+
+        // 筛选交易记录 - 客户端筛选
+        function filterTransactions() {
+            const typeFilter = document.getElementById('typeFilter').value;
+            
+            if (!typeFilter) {
+                filteredTransactions = [...transactions];
+            } else {
+                filteredTransactions = transactions.filter(transaction => {
+                    const transactionType = transaction.trans_type || '';
+                    return transactionType === typeFilter;
+                });
+            }
+            
+            // 更新显示
+            displayTransactions();
+        }
+
+        // 处理存款
+        async function processDeposit() {
+            const card = document.getElementById('depositCard').value;
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            const note = document.getElementById('depositNote').value || '存款操作';
+            
+            if (!card || !amount || amount <= 0) {
+                showToast('请输入有效的银行卡号和存款金额！', 'danger');
+                return;
+            }
+            
+            try {
+                // 1. 获取银行卡信息
+                const cardInfo = await getCardInfo(card);
+                if (!cardInfo) {
+                    showToast('银行卡不存在！', 'danger');
+                    return;
+                }
+
+                // 2. 计算新余额
+                const currentBalance = parseFloat(cardInfo.balance);
+                const newBalance = currentBalance + amount;
+
+                // 3. 更新银行卡余额
+                await updateCardBalance(card, newBalance);
+
+                // 4. 创建交易记录
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        trans_type: '存款',
+                        card: card,
+                        trans_money: amount.toString(),
+                        remark: note,
+                        trans_date: new Date().toISOString()
+                    })
+                });
+                
+                if (response.ok) {
+                    showToast(`存款成功！当前余额: ${newBalance.toLocaleString('zh-CN')}`, 'success');
+                    const depositModal = bootstrap.Modal.getInstance(document.getElementById('depositModal'));
+                    depositModal.hide();
+                    document.getElementById('depositForm').reset();
+                    
+                    // 刷新数据
+                    currentPage = 1;
+                    loadTransactionsFromAPI();
+                } else {
+                    const error = await response.json();
+                    showToast(`存款失败: ${error.message || '未知错误'}`, 'danger');
+                }
+            } catch (error) {
+                console.error('存款操作出错:', error);
+                showToast('存款失败: ' + error.message, 'danger');
+            }
+        }
+
+        // 处理取款
+        // 处理取款 - 增强调试版本
+        async function processWithdraw() {
+            const card = document.getElementById('withdrawCard').value;
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const note = document.getElementById('withdrawNote').value || '取款操作';
+            
+            console.log('开始取款流程，卡号:', card, '金额:', amount);
+            
+            if (!card || !amount || amount <= 0) {
+                showToast('请输入有效的银行卡号和取款金额！', 'danger');
+                return;
+            }
+            
+            // 在 try 块外部定义 originalText
+            const submitBtn = document.getElementById('submitWithdraw');
+            const originalText = submitBtn.innerHTML; // 移到外部
+            
+            try {
+                // 显示加载状态
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>处理中...';
+                submitBtn.disabled = true;
+
+                // 1. 获取银行卡信息
+                console.log('步骤1: 获取银行卡信息');
+                const cardInfo = await getCardInfo(card);
+                if (!cardInfo) {
+                    showToast('银行卡不存在！', 'danger');
+                    return;
+                }
+
+                console.log('银行卡当前余额:', cardInfo.balance);
+
+                // 2. 检查余额是否足够
+                const currentBalance = parseFloat(cardInfo.balance || 0);
+                if (currentBalance < amount) {
+                    showToast(`余额不足！当前余额: ${currentBalance.toLocaleString('zh-CN')}`, 'danger');
+                    return;
+                }
+
+                // 3. 计算新余额
+                const newBalance = currentBalance - amount;
+                console.log('计算新余额:', currentBalance, '-', amount, '=', newBalance);
+
+                // 4. 更新银行卡余额
+                console.log('步骤2: 更新银行卡余额');
+                await updateCardBalance(card, newBalance);
+
+                // 5. 创建交易记录
+                console.log('步骤3: 创建交易记录');
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        trans_type: '取款',
+                        card: card,
+                        trans_money: (-amount).toString(),
+                        remark: note,
+                        trans_date: new Date().toISOString()
+                    })
+                });
+                
+                if (response.ok) {
+                    const transactionResult = await response.json();
+                    console.log('交易记录创建成功:', transactionResult);
+                    
+                    showToast(`取款成功！金额: ${amount.toLocaleString('zh-CN')}，当前余额: ${newBalance.toLocaleString('zh-CN')}`, 'success');
+                    
+                    // 关闭模态框
+                    const withdrawModal = bootstrap.Modal.getInstance(document.getElementById('withdrawModal'));
+                    withdrawModal.hide();
+                    document.getElementById('withdrawForm').reset();
+                    
+                    // 刷新数据
+                    currentPage = 1;
+                    await loadTransactionsFromAPI();
+                    
+                } else {
+                    const error = await response.json();
+                    console.error('交易记录创建失败:', error);
+                    showToast(`取款失败: ${error.message || '未知错误'}`, 'danger');
+                    
+                    // 如果交易记录创建失败，需要回滚余额
+                    try {
+                        console.log('尝试回滚余额...');
+                        await updateCardBalance(card, currentBalance);
+                        console.log('余额回滚成功');
+                    } catch (rollbackError) {
+                        console.error('余额回滚失败:', rollbackError);
+                    }
+                }
+                
+            } catch (error) {
+                console.error('取款操作出错:', error);
+                showToast('取款失败: ' + error.message, 'danger');
+            } finally {
+                // 恢复按钮状态 - 现在 originalText 在作用域内
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        // 处理转账
+        async function processTransfer() {
+            const fromCard = document.getElementById('fromCard').value;
+            const toCard = document.getElementById('toCard').value;
+            const amount = parseFloat(document.getElementById('transferAmount').value);
+            const note = document.getElementById('transferNote').value || '转账操作';
+            
+            if (!fromCard || !toCard || !amount || amount <= 0) {
+                showToast('请输入有效的银行卡号和转账金额！', 'danger');
+                return;
+            }
+            
+            if (fromCard === toCard) {
+                showToast('转出卡号和转入卡号不能相同！', 'danger');
+                return;
+            }
+            
+            try {
+                // 1. 获取转出卡信息
+                const fromCardInfo = await getCardInfo(fromCard);
+                if (!fromCardInfo) {
+                    showToast('转出银行卡不存在！', 'danger');
+                    return;
+                }
+
+                // 2. 获取转入卡信息
+                const toCardInfo = await getCardInfo(toCard);
+                if (!toCardInfo) {
+                    showToast('转入银行卡不存在！', 'danger');
+                    return;
+                }
+
+                // 3. 检查转出卡余额是否足够
+                const fromCurrentBalance = parseFloat(fromCardInfo.balance);
+                if (fromCurrentBalance < amount) {
+                    showToast(`转出卡余额不足！当前余额: ${fromCurrentBalance.toLocaleString('zh-CN')}`, 'danger');
+                    return;
+                }
+
+                // 4. 计算新余额
+                const fromNewBalance = fromCurrentBalance - amount;
+                const toCurrentBalance = parseFloat(toCardInfo.balance);
+                const toNewBalance = toCurrentBalance + amount;
+
+                // 5. 更新转出卡余额
+                await updateCardBalance(fromCard, fromNewBalance);
+
+                // 6. 更新转入卡余额
+                await updateCardBalance(toCard, toNewBalance);
+
+                // 7. 创建转出交易记录
+                const fromResponse = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        trans_type: '转账',
+                        card: fromCard,
+                        trans_money: (-amount).toString(),
+                        remark: `转账至 ${toCard} - ${note}`,
+                        trans_date: new Date().toISOString()
+                    })
+                });
+                
+                // 8. 创建转入交易记录
+                const toResponse = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        trans_type: '转账',
+                        card: toCard,
+                        trans_money: amount.toString(),
+                        remark: `转账自 ${fromCard} - ${note}`,
+                        trans_date: new Date().toISOString()
+                    })
+                });
+                
+                if (fromResponse.ok && toResponse.ok) {
+                    showToast(`转账成功！转出卡余额: ${fromNewBalance.toLocaleString('zh-CN')}, 转入卡余额: ${toNewBalance.toLocaleString('zh-CN')}`, 'success');
+                    const transferModal = bootstrap.Modal.getInstance(document.getElementById('transferModal'));
+                    transferModal.hide();
+                    document.getElementById('transferForm').reset();
+                    
+                    // 刷新数据
+                    currentPage = 1;
+                    loadTransactionsFromAPI();
+                } else {
+                    showToast('转账失败', 'danger');
+                }
+            } catch (error) {
+                console.error('转账操作出错:', error);
+                showToast('转账失败: ' + error.message, 'danger');
+            }
+        }
+
+        // 导出数据
+        function exportData() {
+            const dataStr = JSON.stringify(transactions, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `bank_transactions_${getCurrentDate()}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            showToast('数据导出成功！', 'success');
+        }
+
+        // 显示/隐藏加载状态
+        function showLoading(show) {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const tbody = document.getElementById('transactionRecords');
+            
+            if (show) {
+                loadingIndicator.style.display = 'block';
+                tbody.innerHTML = '';
+            } else {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        // 显示Toast消息
+        function showToast(message, type = 'info') {
+            const toastContainer = document.querySelector('.toast-container');
+            const toastId = 'toast-' + Date.now();
+            
+            const toastEl = document.createElement('div');
+            toastEl.className = `toast align-items-center text-bg-${type} border-0`;
+            toastEl.setAttribute('id', toastId);
+            toastEl.setAttribute('role', 'alert');
+            toastEl.setAttribute('aria-live', 'assertive');
+            toastEl.setAttribute('aria-atomic', 'true');
+            
+            toastEl.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toastEl);
+            
+            const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+            toast.show();
+            
+            // 自动移除Toast元素
+            toastEl.addEventListener('hidden.bs.toast', function() {
+                toastEl.remove();
+            });
+        }
+
+        // 格式化日期
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+
+        // 获取当前日期（用于导出文件名）
+        function getCurrentDate() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            
+            return `${year}${month}${day}`;
+        }
+
+        // 格式化银行卡号
+        function formatCardNumber(cardNumber) {
+            if (!cardNumber || cardNumber.length < 4) return cardNumber;
+            const lastFour = cardNumber.slice(-4);
+            const firstFour = cardNumber.slice(0, 4);
+            return `${firstFour} **** **** ${lastFour}`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财政拨款溯源系统管理平台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        /* 顶部导航栏 */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0 20px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 22px;
+            font-weight: 700;
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            font-size: 24px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .user-info img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .user-dropdown {
+            position: relative;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .user-dropdown:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            min-width: 180px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 6px;
+            padding: 8px 0;
+            display: none;
+            z-index: 1001;
+        }
+        
+        .dropdown-menu.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            color: #333;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #667eea;
+        }
+        
+        .dropdown-item i {
+            margin-right: 8px;
+            width: 16px;
+            text-align: center;
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background-color: #e9ecef;
+            margin: 4px 0;
+        }
+        
+        /* 主容器 */
+        .container {
+            display: flex;
+            margin-top: 60px;
+            min-height: calc(100vh - 60px);
+        }
+        
+        /* 左侧菜单栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            overflow-y: auto;
+            height: calc(100vh - 60px);
+            position: fixed;
+            left: 0;
+            transition: all 0.3s ease;
+            z-index: 900;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+            background: #f9fafb;
+        }
+        
+        .sidebar-header h3 {
+            color: #667eea;
+            font-size: 18px;
+        }
+        
+        .menu {
+            padding: 15px 0;
+        }
+        
+        .menu-list {
+            list-style: none;
+        }
+        
+        .menu-item {
+            position: relative;
+        }
+        
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #555;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-link:hover {
+            background: #f8f9fa;
+            color: #667eea;
+            border-left-color: #667eea;
+        }
+        
+        .menu-link.active {
+            background: #f0f4ff;
+            color: #667eea;
+            border-left-color: #667eea;
+            font-weight: 600;
+        }
+        
+        .menu-link i {
+            margin-right: 12px;
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .menu-text {
+            flex: 1;
+        }
+        
+        .submenu {
+            background: #f9fafb;
+            display: none;
+            list-style: none;
+        }
+        
+        .submenu .menu-link {
+            padding-left: 50px;
+            font-size: 14px;
+        }
+        
+        .menu-toggle {
+            cursor: pointer;
+            padding: 5px;
+            transition: transform 0.3s ease;
+        }
+        
+        .menu-toggle.rotate {
+            transform: rotate(90deg);
+        }
+        
+        /* 右侧内容区 */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .content-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .content-header h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            list-style: none;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .breadcrumb li:after {
+            content: "/";
+            margin: 0 8px;
+        }
+        
+        .breadcrumb li:last-child:after {
+            content: "";
+        }
+        
+        .content-body {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 0;
+            min-height: 600px;
+            height: calc(100vh - 180px);
+            overflow: hidden;
+        }
+
+        /* iframe样式 */
+        .content-body iframe,
+        .content-body object {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 8px;
+        }
+        
+        .welcome-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .welcome-message i {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .welcome-message h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .welcome-message p {
+            font-size: 16px;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* 菜单加载状态 */
+        .menu-loading {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+        }
+        
+        .menu-loading i {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+        
+        /* 动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        /* 菜单图标颜色 */
+        .fa-dashboard { color: #667eea; }
+        .fa-users { color: #f093fb; }
+        .fa-cog { color: #4facfe; }
+        .fa-chart-bar { color: #43e97b; }
+        .fa-file-alt { color: #fa709a; }
+        .fa-shopping-cart { color: #ff9a9e; }
+        .fa-database { color: #a8edea; }
+        .fa-bell { color: #f6d365; }
+        .fa-sign-out-alt { color: #e74c3c; }
+        .fa-user { color: #3498db; }
+        .fa-key { color: #9b59b6; }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>财政拨款溯源系统管理平台</span>
+        </div>
+        <div class="user-info">
+            <div class="user-dropdown" id="userDropdown">
+                <img src="https://ui-avatars.com/api/?name=管理员&background=667eea&color=fff" alt="用户头像">
+                <span id="username-display">管理员</span>
+                <i class="fas fa-chevron-down" style="margin-left: 8px; font-size: 12px;"></i>
+            </div>
+            <div class="dropdown-menu" id="dropdownMenu">
+                <a href="#" class="dropdown-item" onclick="showUserInfo()">
+                    <i class="fas fa-user"></i>
+                    <span>个人信息</span>
+                </a>
+                <a href="#" class="dropdown-item" onclick="changePassword()">
+                    <i class="fas fa-key"></i>
+                    <span>修改密码</span>
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>退出登录</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主容器 -->
+    <div class="container">
+        <!-- 左侧菜单栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>系统菜单</h3>
+            </div>
+            <div class="menu" id="menuContainer">
+                <!-- 菜单将通过AJAX动态加载 -->
+                <div class="menu-loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>菜单加载中...</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 右侧内容区 -->
+        <main class="main-content">
+            <div class="content-header">
+                <h1>系统首页</h1>
+                <ul class="breadcrumb">
+                    <li>首页</li>
+                </ul>
+            </div>
+            <div class="content-body" id="contentBody">
+                <div class="welcome-message">
+                    <i class="fas fa-home"></i>
+                    <h2>欢迎使用财政拨款溯源系统管理平台</h2>
+                    <p>请从左侧菜单选择功能模块开始使用系统。系统提供了用户管理、系统设置、数据统计等多种功能，帮助您高效管理系统资源。</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 全局变量
+        let currentUserId = null;
+        let currentUserRole = null;
+        // 登录页面URL - 修改为您的实际登录页面地址
+        const LOGIN_PAGE_URL = 'http://127.0.0.1:8000/static/login.html';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取用户ID（从登录页面传递）
+            const urlParams = new URLSearchParams(window.location.search);
+            currentUserId = urlParams.get('user_id') || localStorage.getItem('user_id') || '1';
+            
+            // 保存用户ID到本地存储
+            localStorage.setItem('user_id', currentUserId);
+            
+            // 更新用户名显示
+            document.getElementById('username-display').textContent = `用户 ${currentUserId}`;
+            
+            // 加载用户角色和菜单数据
+            loadUserRoleAndMenu(currentUserId);
+            
+            // 绑定用户下拉菜单事件
+            document.getElementById('userDropdown').addEventListener('click', function(e) {
+                e.stopPropagation();
+                const dropdownMenu = document.getElementById('dropdownMenu');
+                dropdownMenu.classList.toggle('show');
+            });
+            
+            // 点击其他地方关闭下拉菜单
+            document.addEventListener('click', function() {
+                document.getElementById('dropdownMenu').classList.remove('show');
+            });
+            
+            // 绑定菜单点击事件
+            document.getElementById('menuContainer').addEventListener('click', function(e) {
+                const menuLink = e.target.closest('.menu-link');
+                if (menuLink) {
+                    e.preventDefault();
+                    
+                    // 处理子菜单展开/收起
+                    const parentItem = menuLink.parentElement;
+                    if (parentItem.classList.contains('has-submenu')) {
+                        const submenu = parentItem.querySelector('.submenu');
+                        const toggleIcon = parentItem.querySelector('.menu-toggle');
+                        
+                        if (submenu.style.display === 'block') {
+                            submenu.style.display = 'none';
+                            toggleIcon.classList.remove('rotate');
+                        } else {
+                            submenu.style.display = 'block';
+                            toggleIcon.classList.add('rotate');
+                        }
+                    } else {
+                        // 更新活动菜单项
+                        document.querySelectorAll('.menu-link').forEach(link => {
+                            link.classList.remove('active');
+                        });
+                        menuLink.classList.add('active');
+                        
+                        // 加载菜单内容
+                        const menuName = menuLink.querySelector('.menu-text').textContent;
+                        const menuUrl = menuLink.getAttribute('data-url');
+                        
+                        // 更新面包屑
+                        updateBreadcrumb(menuName);
+                        
+                        // 加载内容
+                        if (menuUrl && menuUrl !== '#') {
+                            loadContent(menuUrl, menuName);
+                        } else {
+                            showDefaultContent(menuName);
+                        }
+                    }
+                }
+            });
+        });
+
+        // 加载用户角色和菜单数据
+        function loadUserRoleAndMenu(userId) {
+            console.log('=== 开始加载用户角色和菜单 ===');
+            console.log('用户ID:', userId);
+            
+            const menuContainer = document.getElementById('menuContainer');
+            menuContainer.innerHTML = `
+                <div class="menu-loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>正在获取用户权限...</p>
+                </div>
+            `;
+
+            // 直接使用新的接口获取用户菜单
+            fetch(`/api-menu/user/${userId}/`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken') || ''
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`获取用户菜单失败: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(userMenuData => {
+                console.log('用户菜单数据:', userMenuData);
+                
+                if (userMenuData.error) {
+                    throw new Error(userMenuData.error);
+                }
+                
+                // 更新用户角色信息（从响应中获取或使用默认值）
+                currentUserRole = userMenuData.role_id || 'operator';
+                
+                // 更新用户名显示
+                if (userMenuData.user_name) {
+                    document.getElementById('username-display').textContent = userMenuData.user_name;
+                }
+                
+                // 直接渲染菜单数据
+                if (userMenuData.menus && userMenuData.menus.length > 0) {
+                    renderMenu(userMenuData.menus);
+                } else {
+                    throw new Error('用户没有可访问的菜单');
+                }
+            })
+            .catch(error => {
+                console.error('加载用户菜单失败:', error);
+                showMenuError('菜单加载失败: ' + error.message);
+                
+                // 降级方案
+                useFallbackMenuData();
+            });
+        }
+
+        // 新增：基于角色权限过滤菜单的函数
+        function filterMenusByRole(allMenus, allowedMenuIds, userRole) {
+            console.log('=== 开始菜单权限过滤 ===');
+            console.log('所有菜单:', allMenus);
+            console.log('允许的菜单ID:', allowedMenuIds);
+            console.log('用户角色:', userRole);
+            
+            if (!allMenus || allMenus.length === 0) {
+                return [];
+            }
+            
+            // 首先过滤出有权限的菜单
+            const permittedMenus = allMenus.filter(menu => 
+                allowedMenuIds.includes(menu.menu_id || menu.id)
+            );
+            
+            console.log('初步过滤的菜单:', permittedMenus);
+            
+            // 根据角色类型进行额外过滤
+            const roleBasedMenus = applyRoleBasedFiltering(permittedMenus, userRole);
+            console.log('角色过滤后的菜单:', roleBasedMenus);
+            
+            // 构建完整的菜单树（确保父菜单也被包含）
+            const finalMenus = buildCompleteMenuTree(roleBasedMenus, allMenus);
+            console.log('最终菜单树:', finalMenus);
+            
+            return finalMenus;
+        }
+
+        // 新增：根据角色类型应用额外过滤规则
+        function applyRoleBasedFiltering(menus, userRole) {
+            // 角色权限配置
+            const rolePermissions = {
+                // 管理员角色 - 所有权限
+                'admin': {
+                    allowedMenus: ['*'], // 所有菜单
+                    deniedMenus: [] // 无限制
+                },
+                // 经理角色
+                'manager': {
+                    allowedMenus: ['用户管理', '数据统计', '报表管理'],
+                    deniedMenus: ['系统设置', '高级功能']
+                },
+                // 操作员角色
+                'operator': {
+                    allowedMenus: ['用户管理', '交易记录'],
+                    deniedMenus: ['系统设置', '数据统计', '报表管理']
+                },
+                // 查看者角色
+                'viewer': {
+                    allowedMenus: ['数据统计', '报表查看'],
+                    deniedMenus: ['用户管理', '系统设置', '交易记录']
+                }
+            };
+            
+            // 获取当前角色的权限配置
+            const permission = rolePermissions[userRole] || rolePermissions['operator'];
+            
+            return menus.filter(menu => {
+                const menuName = menu.menu_name || '';
+                
+                // 如果角色是管理员，允许所有菜单
+                if (userRole === 'admin' || permission.allowedMenus.includes('*')) {
+                    return true;
+                }
+                
+                // 检查菜单是否在允许列表中
+                const isAllowed = permission.allowedMenus.some(allowedMenu => 
+                    menuName.includes(allowedMenu)
+                );
+                
+                // 检查菜单是否在拒绝列表中
+                const isDenied = permission.deniedMenus.some(deniedMenu => 
+                    menuName.includes(deniedMenu)
+                );
+                
+                return isAllowed && !isDenied;
+            });
+        }
+
+        // 新增：构建完整的菜单树，确保父菜单被包含
+        function buildCompleteMenuTree(filteredMenus, allMenus) {
+            const menuMap = new Map();
+            const resultMenus = [];
+            
+            // 创建菜单映射
+            allMenus.forEach(menu => {
+                menuMap.set(menu.menu_id || menu.id, menu);
+            });
+            
+            // 收集所有需要显示的菜单ID（包括父菜单）
+            const menuIdsToShow = new Set();
+            
+            // 首先添加所有过滤后的菜单
+            filteredMenus.forEach(menu => {
+                menuIdsToShow.add(menu.menu_id || menu.id);
+                
+                // 递归添加所有父菜单
+                let parentId = menu.parent_id;
+                while (parentId && parentId !== 0) {
+                    menuIdsToShow.add(parentId);
+                    const parentMenu = menuMap.get(parentId);
+                    parentId = parentMenu ? parentMenu.parent_id : 0;
+                }
+            });
+            
+            console.log('需要显示的菜单ID:', Array.from(menuIdsToShow));
+            
+            // 构建菜单树
+            allMenus.forEach(menu => {
+                if (menuIdsToShow.has(menu.menu_id || menu.id)) {
+                    resultMenus.push(menu);
+                }
+            });
+            
+            return resultMenus;
+        }
+
+        // 新增：获取角色名称的函数（根据角色ID）
+        function getRoleName(roleId) {
+            const roleMap = {
+                '1': 'admin',
+                '2': 'manager', 
+                '3': 'operator',
+                '4': 'viewer',
+                'admin': 'admin',
+                'manager': 'manager',
+                'operator': 'operator',
+                'viewer': 'viewer'
+            };
+            
+            return roleMap[roleId] || 'operator';
+        }
+
+        // 修改现有的 renderMenu 函数，增加权限提示
+        function renderMenu(menus) {
+            console.log('=== 开始渲染菜单 ===');
+            console.log('接收到的菜单数据:', menus);
+            
+            const menuContainer = document.getElementById('menuContainer');
+            
+            if (!menus || menus.length === 0) {
+                console.log('菜单数据为空');
+                menuContainer.innerHTML = `
+                    <div class="menu-loading">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>暂无菜单权限</p>
+                        <p style="font-size: 12px; margin-top: 5px;">当前角色 [${getRoleName(currentUserRole)}] 没有可访问的菜单权限</p>
+                        <p style="font-size: 12px; margin-top: 5px;">请联系管理员分配菜单权限</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            console.log(`开始渲染 ${menus.length} 个菜单项`);
+            
+            // 更新用户名显示，包含角色信息
+            const roleName = getRoleName(currentUserRole);
+            document.getElementById('username-display').textContent = `用户 ${currentUserId} (${roleName})`;
+            
+            // 原有的渲染逻辑保持不变
+            const menuMap = {};
+            menus.forEach(menu => {
+                console.log(`处理菜单项:`, menu);
+                const parentId = menu.parent_id || 0;
+                if (!menuMap[parentId]) {
+                    menuMap[parentId] = [];
+                }
+                menuMap[parentId].push(menu);
+            });
+            
+            // ... 其余原有的 renderMenu 函数代码保持不变
+            // 生成菜单HTML的函数
+            function generateMenuHtml(parentId) {
+                const items = menuMap[parentId] || [];
+                console.log(`生成 parentId=${parentId} 的菜单, 有 ${items.length} 个项`);
+                
+                // 按sort_order排序
+                items.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+                
+                let html = '';
+                items.forEach(item => {
+                    const itemId = item.menu_id || item.id;
+                    const hasChildren = menuMap[itemId] && menuMap[itemId].length > 0;
+                    
+                    html += `
+                        <li class="menu-item ${hasChildren ? 'has-submenu' : ''}">
+                            <a href="#" class="menu-link" data-url="${item.menu_url || '#'}">
+                                <i class="fas ${getMenuIcon(itemId, item.menu_name)}"></i>
+                                <span class="menu-text">${item.menu_name}</span>
+                                ${hasChildren ? '<i class="fas fa-chevron-right menu-toggle"></i>' : ''}
+                            </a>
+                            ${hasChildren ? `
+                                <ul class="submenu">
+                                    ${generateMenuHtml(itemId)}
+                                </ul>
+                            ` : ''}
+                        </li>
+                    `;
+                });
+                
+                return html;
+            }
+            
+            let menuHtml = generateMenuHtml(0);
+            
+            // 如果没有根菜单，尝试其他parent_id
+            if (!menuHtml) {
+                const parentIds = Object.keys(menuMap);
+                for (let parentId of parentIds) {
+                    if (parentId !== '0') {
+                        menuHtml = generateMenuHtml(parseInt(parentId));
+                        if (menuHtml) break;
+                    }
+                }
+            }
+            
+            menuContainer.innerHTML = `<ul class="menu-list">${menuHtml}</ul>`;
+            console.log('=== 菜单渲染完成 ===');
+        }
+
+        // 修改降级方案，增加角色过滤
+        // 修改降级方案函数
+        // 修改降级方案函数
+        function useFallbackMenuData() {
+            console.warn('使用模拟菜单数据');
+            
+            // 尝试使用新的接口
+            fetch(`/api-menu/user/${currentUserId}/`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken') || ''
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('API请求失败');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.menus && data.menus.length > 0) {
+                    renderMenu(data.menus);
+                } else {
+                    throw new Error('没有菜单数据');
+                }
+            })
+            .catch(error => {
+                console.error('降级方案也失败了:', error);
+                // 最终降级到硬编码菜单
+                const mockMenuData = [
+                    { menu_id: 1, menu_name: "系统首页", parent_id: 0, menu_url: "/dashboard", sort_order: 1 },
+                    { menu_id: 2, menu_name: "用户管理", parent_id: 0, menu_url: "/user/manage", sort_order: 2 },
+                    { menu_id: 3, menu_name: "银行卡管理", parent_id: 0, menu_url: "/bank/cards", sort_order: 3 },
+                    { menu_id: 4, menu_name: "交易记录", parent_id: 0, menu_url: "/transaction/records", sort_order: 4 },
+                    { menu_id: 5, menu_name: "系统设置", parent_id: 0, menu_url: "/system/settings", sort_order: 5 }
+                ];
+                renderMenu(mockMenuData);
+            });
+        }
+
+     
+
+        // 渲染菜单
+        function renderMenu(menus) {
+            console.log('=== 开始渲染菜单 ===');
+            console.log('接收到的菜单数据:', menus);
+            
+            const menuContainer = document.getElementById('menuContainer');
+            
+            if (!menus || menus.length === 0) {
+                console.log('菜单数据为空');
+                menuContainer.innerHTML = `
+                    <div class="menu-loading">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>暂无菜单权限</p>
+                        <p style="font-size: 12px; margin-top: 5px;">请联系管理员分配菜单权限</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            console.log(`开始渲染 ${menus.length} 个菜单项`);
+            
+            // 按parent_id分组
+            const menuMap = {};
+            menus.forEach(menu => {
+                console.log(`处理菜单项:`, menu);
+                const parentId = menu.parent_id || 0;
+                if (!menuMap[parentId]) {
+                    menuMap[parentId] = [];
+                }
+                menuMap[parentId].push(menu);
+            });
+            
+            console.log('分组后的菜单数据:', menuMap);
+            
+            // 生成菜单HTML
+            function generateMenuHtml(parentId) {
+                const items = menuMap[parentId] || [];
+                console.log(`生成 parentId=${parentId} 的菜单, 有 ${items.length} 个项`);
+                
+                // 按sort_order排序
+                items.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+                
+                let html = '';
+                items.forEach(item => {
+                    const itemId = item.menu_id || item.id;
+                    const hasChildren = menuMap[itemId] && menuMap[itemId].length > 0;
+                    
+                    html += `
+                        <li class="menu-item ${hasChildren ? 'has-submenu' : ''}">
+                            <a href="#" class="menu-link" data-url="${item.menu_url || '#'}">
+                                <i class="fas ${getMenuIcon(itemId, item.menu_name)}"></i>
+                                <span class="menu-text">${item.menu_name}</span>
+                                ${hasChildren ? '<i class="fas fa-chevron-right menu-toggle"></i>' : ''}
+                            </a>
+                            ${hasChildren ? `
+                                <ul class="submenu">
+                                    ${generateMenuHtml(itemId)}
+                                </ul>
+                            ` : ''}
+                        </li>
+                    `;
+                });
+                
+                return html;
+            }
+            
+            // 生成菜单HTML
+            let menuHtml = generateMenuHtml(0);
+            
+            // 如果没有根菜单，尝试其他parent_id
+            if (!menuHtml) {
+                const parentIds = Object.keys(menuMap);
+                for (let parentId of parentIds) {
+                    if (parentId !== '0') {
+                        menuHtml = generateMenuHtml(parseInt(parentId));
+                        if (menuHtml) break;
+                    }
+                }
+            }
+            
+            menuContainer.innerHTML = `<ul class="menu-list">${menuHtml}</ul>`;
+            console.log('=== 菜单渲染完成 ===');
+        }
+
+        // 获取菜单图标
+        function getMenuIcon(menuId, menuName) {
+            const iconMap = {
+                '首页': 'fa-home',
+                '仪表板': 'fa-dashboard',
+                '用户管理': 'fa-users',
+                '系统设置': 'fa-cog',
+                '数据统计': 'fa-chart-bar',
+                '报表': 'fa-file-alt',
+                '订单': 'fa-shopping-cart',
+                '数据库': 'fa-database',
+                '通知': 'fa-bell',
+                '权限': 'fa-user-shield',
+                '日志': 'fa-clipboard-list',
+                '帮助': 'fa-question-circle',
+                '银行卡': 'fa-credit-card',
+                '交易': 'fa-exchange-alt',
+                '财务': 'fa-money-bill-wave'
+            };
+            
+            if (menuName) {
+                for (const [key, value] of Object.entries(iconMap)) {
+                    if (menuName.includes(key)) {
+                        return value;
+                    }
+                }
+            }
+            
+            const defaultIcons = [
+                'fa-circle',
+                'fa-square',
+                'fa-star',
+                'fa-flag',
+                'fa-bookmark'
+            ];
+            
+            return defaultIcons[menuId % defaultIcons.length] || 'fa-circle';
+        }
+
+        // 更新面包屑导航
+        function updateBreadcrumb(menuName) {
+            const breadcrumb = document.querySelector('.breadcrumb');
+            breadcrumb.innerHTML = `<li>首页</li><li>${menuName}</li>`;
+            document.querySelector('.content-header h1').textContent = menuName;
+        }
+
+        // 加载菜单内容
+        function loadContent(url, menuName) {
+            const contentBody = document.getElementById('contentBody');
+            contentBody.innerHTML = '';
+            
+            const iframe = document.createElement('iframe');
+            iframe.src = url;
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.style.minHeight = '600px';
+            iframe.onload = function() {
+                console.log(`成功加载iframe页面: ${url}`);
+            };
+            iframe.onerror = function() {
+                console.error(`iframe加载失败: ${url}`);
+                contentBody.innerHTML = `
+                    <div class="welcome-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h2>页面加载失败</h2>
+                        <p>无法加载: <strong>${url}</strong></p>
+                        <div style="margin-top: 20px;">
+                            <button onclick="loadContent('${url}', '${menuName}')" 
+                                    style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                重新加载
+                            </button>
+                        </div>
+                    </div>
+                `;
+            };
+            
+            contentBody.appendChild(iframe);
+        }
+
+        // 显示默认内容
+        function showDefaultContent(menuName) {
+            const contentBody = document.getElementById('contentBody');
+            contentBody.innerHTML = `
+                <div class="welcome-message">
+                    <i class="fas fa-info-circle"></i>
+                    <h2>${menuName}</h2>
+                    <p>这是 <strong>${menuName}</strong> 功能的默认页面。</p>
+                    <p>在实际应用中，这里将显示对应功能的详细内容和操作界面。</p>
+                </div>
+            `;
+        }
+
+        // 显示菜单错误
+        function showMenuError(message) {
+            const menuContainer = document.getElementById('menuContainer');
+            menuContainer.innerHTML = `
+                <div class="menu-loading">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>${message}</p>
+                    <button onclick="loadUserRoleAndMenu(currentUserId)" style="margin-top: 10px; padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        重新加载
+                    </button>
+                </div>
+            `;
+        }
+
+
+        // 退出登录
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                console.log('执行退出登录操作');
+                console.log('跳转到登录页面:', LOGIN_PAGE_URL);
+                
+                // 清除本地存储
+                localStorage.removeItem('user_id');
+                localStorage.removeItem('user_role');
+                
+                // 显示退出提示
+                showLogoutMessage();
+                
+                // 延迟跳转，让用户看到提示信息
+                setTimeout(() => {
+                    // 使用完整URL跳转到登录页面
+                    window.location.href = LOGIN_PAGE_URL;
+                }, 1000);
+            }
+        }
+
+        // 显示退出提示
+        function showLogoutMessage() {
+            const contentBody = document.getElementById('contentBody');
+            contentBody.innerHTML = `
+                <div class="welcome-message">
+                    <i class="fas fa-sign-out-alt" style="color: #667eea;"></i>
+                    <h2>正在退出系统...</h2>
+                    <p>您正在退出系统管理平台，即将跳转到登录页面。</p>
+                    <div style="margin-top: 20px;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">加载中...</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 显示用户信息
+        function showUserInfo() {
+            alert(`用户信息:\n用户ID: ${currentUserId}\n用户角色: ${currentUserRole || '未知'}`);
+        }
+
+        // 修改密码
+        function changePassword() {
+            alert('修改密码功能开发中...');
+        }
+
+        // 获取CSRF令牌
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+
+        // 调试函数：检查当前URL和登录页面URL
+        function debugUrls() {
+            console.log('当前页面URL:', window.location.href);
+            console.log('登录页面URL:', LOGIN_PAGE_URL);
+            console.log('用户ID:', currentUserId);
+            console.log('用户角色:', currentUserRole);
+        }
+
+        // 在控制台运行 debugUrls() 来调试
+    </script>
+</body>
+</html>

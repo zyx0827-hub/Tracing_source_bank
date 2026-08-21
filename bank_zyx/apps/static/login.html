@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户登录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .login-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+        }
+        
+        .login-header {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .login-header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .login-header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        
+        .login-form {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: #6a11cb;
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.1);
+            outline: none;
+        }
+        
+        .btn-login {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(106, 17, 203, 0.3);
+        }
+        
+        .btn-login:active {
+            transform: translateY(0);
+        }
+        
+        .btn-login:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .success-message {
+            color: #2ecc71;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .loading-spinner {
+            border: 4px solid rgba(106, 17, 203, 0.2);
+            border-radius: 50%;
+            border-top: 4px solid #6a11cb;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .footer-links {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .footer-links a {
+            color: #6a11cb;
+            text-decoration: none;
+            margin: 0 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .modal-container {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-header {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            padding: 20px;
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            font-size: 22px;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 20px;
+            text-align: right;
+            border-top: 1px solid #eee;
+        }
+        
+        .btn-modal {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .btn-modal-primary {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+        }
+        
+        .btn-modal-secondary {
+            background: #f1f1f1;
+            color: #333;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                max-width: 100%;
+            }
+            
+            .login-form {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>欢迎登录</h1>
+            <p>请输入您的用户名和密码</p>
+        </div>
+        
+        <form class="login-form" id="loginForm">
+            <div class="form-group">
+                <label for="user_name">用户名</label>
+                <input type="text" id="user_name" class="form-control" placeholder="请输入用户名" required>
+                <div class="error-message" id="usernameError">请输入有效的用户名</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" class="form-control" placeholder="请输入密码" required>
+                <div class="error-message" id="passwordError">密码不能为空</div>
+            </div>
+            
+            <button type="submit" class="btn-login" id="loginButton">登录</button>
+            
+            <div class="loading" id="loadingIndicator">
+                <div class="loading-spinner"></div>
+                <p>正在登录，请稍候...</p>
+            </div>
+            
+            <div class="error-message" id="loginError" style="text-align: center; margin-top: 15px;"></div>
+            <div class="success-message" id="successMessage" style="text-align: center; margin-top: 15px;"></div>
+        </form>
+        
+        <div class="footer-links">
+            <a id="forgotPasswordLink">忘记密码?</a>
+            <a id="registerLink">注册新账户</a>
+        </div>
+    </div>
+
+    <!-- 忘记密码模态框 -->
+    <div class="modal-overlay" id="forgotPasswordModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>找回密码</h2>
+                <button class="close-btn" id="closeForgotModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="forgotPasswordForm">
+                    <div class="form-group">
+                        <label for="forgotUserName">用户名</label>
+                        <input type="text" id="forgotUserName" class="form-control" placeholder="请输入您的用户名" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="forgotPid">身份证号</label>
+                        <input type="text" id="forgotPid" class="form-control" placeholder="请输入您的身份证号" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="newPassword">新密码</label>
+                        <input type="password" id="newPassword" class="form-control" placeholder="请输入新密码" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword">确认新密码</label>
+                        <input type="password" id="confirmPassword" class="form-control" placeholder="请再次输入新密码" required>
+                    </div>
+                    
+                    <div class="error-message" id="forgotError" style="text-align: center; margin-top: 15px;"></div>
+                    <div class="success-message" id="forgotSuccess" style="text-align: center; margin-top: 15px;"></div>
+                    
+                    <div class="loading" id="forgotLoading">
+                        <div class="loading-spinner"></div>
+                        <p>正在验证信息，请稍候...</p>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal btn-modal-secondary" id="cancelForgotBtn">取消</button>
+                <button class="btn-modal btn-modal-primary" id="resetPasswordBtn">重置密码</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 注册新账户模态框 -->
+    <div class="modal-overlay" id="registerModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>注册新账户</h2>
+                <button class="close-btn" id="closeRegisterModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="registerForm">
+                    <div class="row" style="display: flex; gap: 15px; margin-bottom: 15px;">
+                        <div style="flex: 1;">
+                            <div class="form-group">
+                                <label for="registerName">用户名称</label>
+                                <input type="text" id="registerName" class="form-control" placeholder="请输入用户名" required>
+                            </div>
+                        </div>
+                        <div style="flex: 1;">
+                            <div class="form-group">
+                                <label for="registerPassword">密码</label>
+                                <input type="password" id="registerPassword" class="form-control" placeholder="请输入密码" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row" style="display: flex; gap: 15px; margin-bottom: 15px;">
+                        <div style="flex: 1;">
+                            <div class="form-group">
+                                <label for="registerPid">身份证号</label>
+                                <input type="text" id="registerPid" class="form-control" placeholder="请输入身份证号" required>
+                            </div>
+                        </div>
+                        <div style="flex: 1;">
+                            <div class="form-group">
+                                <label for="registerTelephone">电话号码</label>
+                                <input type="tel" id="registerTelephone" class="form-control" placeholder="请输入电话号码" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row" style="display: flex; gap: 15px; margin-bottom: 15px;">
+                        <div style="flex: 1;">
+                            <div class="form-group">
+                                <label for="registerEmail">邮箱（可选）</label>
+                                <input type="email" id="registerEmail" class="form-control" placeholder="请输入邮箱">
+                            </div>
+                        </div>
+                        <div style="flex: 1;">
+                            <div class="form-group">
+                                <label for="registerConfirmPassword">确认密码</label>
+                                <input type="password" id="registerConfirmPassword" class="form-control" placeholder="请再次输入密码" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="registerAddress">地址</label>
+                        <input type="text" id="registerAddress" class="form-control" placeholder="请输入地址" required>
+                    </div>
+                    
+                    <div class="error-message" id="registerError" style="text-align: center; margin-top: 15px;"></div>
+                    <div class="success-message" id="registerSuccess" style="text-align: center; margin-top: 15px;"></div>
+                    
+                    <div class="loading" id="registerLoading">
+                        <div class="loading-spinner"></div>
+                        <p>正在注册，请稍候...</p>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal btn-modal-secondary" id="cancelRegisterBtn">取消</button>
+                <button class="btn-modal btn-modal-primary" id="registerSubmitBtn">注册</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置默认API URL
+            const defaultApiUrl = 'http://127.0.0.1:8000/api-user/login/';
+            localStorage.setItem('loginApiUrl', defaultApiUrl);
+            
+            // 忘记密码链接点击事件
+            document.getElementById('forgotPasswordLink').addEventListener('click', function() {
+                showForgotPasswordModal();
+            });
+            
+            // 注册链接点击事件
+            document.getElementById('registerLink').addEventListener('click', function() {
+                showRegisterModal();
+            });
+            
+            // 忘记密码模态框关闭事件
+            document.getElementById('closeForgotModal').addEventListener('click', function() {
+                hideForgotPasswordModal();
+            });
+            
+            document.getElementById('cancelForgotBtn').addEventListener('click', function() {
+                hideForgotPasswordModal();
+            });
+            
+            // 注册模态框关闭事件
+            document.getElementById('closeRegisterModal').addEventListener('click', function() {
+                hideRegisterModal();
+            });
+            
+            document.getElementById('cancelRegisterBtn').addEventListener('click', function() {
+                hideRegisterModal();
+            });
+            
+            // 重置密码按钮事件
+            document.getElementById('resetPasswordBtn').addEventListener('click', function() {
+                resetPassword();
+            });
+            
+            // 注册提交按钮事件
+            document.getElementById('registerSubmitBtn').addEventListener('click', function() {
+                registerUser();
+            });
+        });
+        
+        // 显示忘记密码模态框
+        function showForgotPasswordModal() {
+            document.getElementById('forgotPasswordModal').style.display = 'flex';
+            document.getElementById('forgotPasswordForm').reset();
+            hideMessages('forgot');
+        }
+        
+        // 隐藏忘记密码模态框
+        function hideForgotPasswordModal() {
+            document.getElementById('forgotPasswordModal').style.display = 'none';
+        }
+        
+        // 显示注册模态框
+        function showRegisterModal() {
+            document.getElementById('registerModal').style.display = 'flex';
+            document.getElementById('registerForm').reset();
+            hideMessages('register');
+        }
+        
+        // 隐藏注册模态框
+        function hideRegisterModal() {
+            document.getElementById('registerModal').style.display = 'none';
+        }
+        
+        // 隐藏消息
+        function hideMessages(type) {
+            if (type === 'forgot') {
+                document.getElementById('forgotError').style.display = 'none';
+                document.getElementById('forgotSuccess').style.display = 'none';
+            } else if (type === 'register') {
+                document.getElementById('registerError').style.display = 'none';
+                document.getElementById('registerSuccess').style.display = 'none';
+            }
+        }
+        
+        // 显示消息
+        function showMessage(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+        
+        // 辅助函数：验证身份证号格式
+        function isValidPID(pid) {
+            // 简单验证：15位或18位数字，最后一位可以是X
+            const pattern = /^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x))$/;
+            return pattern.test(pid);
+        }
+
+        // 辅助函数：验证手机号格式
+        function isValidPhone(phone) {
+            // 简单验证：11位数字，1开头
+            const pattern = /^1[3-9]\d{9}$/;
+            return pattern.test(phone);
+        }
+        
+        // 辅助函数：验证邮箱格式
+        function isValidEmail(email) {
+            if (!email) return true; // 邮箱可选，为空时返回true
+            const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return pattern.test(email);
+        }
+        
+        // 重置密码功能 - 连接到 sysuser 表
+        function resetPassword() {
+            const userName = document.getElementById('forgotUserName').value.trim();
+            const pid = document.getElementById('forgotPid').value.trim();
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // 验证输入
+            if (!userName || !pid || !newPassword || !confirmPassword) {
+                showMessage('forgotError', '请填写所有必填项');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showMessage('forgotError', '两次输入的密码不一致');
+                return;
+            }
+            
+            // 显示加载中
+            document.getElementById('forgotLoading').style.display = 'block';
+            hideMessages('forgot');
+            
+            // 1. 首先在 sysuser 表中查找匹配的用户
+            const searchUrl = 'http://127.0.0.1:8000/api-user/';
+            
+            fetch(searchUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP错误! 状态: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // 在用户列表中查找匹配的用户
+                    const users = data.results || [];
+                    const user = users.find(u => 
+                        u.user_name === userName && u.pid === pid
+                    );
+                    
+                    if (!user) {
+                        throw new Error('用户不存在或身份证号不匹配');
+                    }
+                    
+                    // 2. 更新 sysuser 表中的密码
+                    const updateData = {
+                        user_name: user.user_name,
+                        password: newPassword,  // 更新密码
+                        email: user.email || '',
+                        mobile: user.mobile || '',
+                        pid: user.pid,
+                        address: user.address || '',
+                        is_active: user.is_active || true
+                    };
+                    
+                    const updateUrl = `http://127.0.0.1:8000/api-user/${user.user_id}/`;
+                    
+                    return fetch(updateUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(updateData)
+                    });
+                })
+                .then(response => {
+                    document.getElementById('forgotLoading').style.display = 'none';
+                    
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(`更新失败: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    showMessage('forgotSuccess', '密码重置成功！请使用新密码登录。');
+                    // 3秒后关闭模态框
+                    setTimeout(() => {
+                        hideForgotPasswordModal();
+                    }, 3000);
+                })
+                .catch(error => {
+                    document.getElementById('forgotLoading').style.display = 'none';
+                    console.error('重置密码错误:', error);
+                    showMessage('forgotError', `重置密码失败: ${error.message}`);
+                });
+        }
+        
+        // 注册新用户功能 - 连接到 sysuser 表
+        function registerUser() {
+            const userName = document.getElementById('registerName').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            const pid = document.getElementById('registerPid').value.trim();
+            const telephone = document.getElementById('registerTelephone').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const address = document.getElementById('registerAddress').value.trim();
+            
+            // 验证输入
+            if (!userName || !password || !confirmPassword || !pid || !telephone || !address) {
+                showMessage('registerError', '请填写所有必填项（邮箱可选）');
+                return;
+            }
+            
+            // 验证密码匹配
+            if (password !== confirmPassword) {
+                showMessage('registerError', '两次输入的密码不一致');
+                return;
+            }
+            
+            // 验证身份证号格式
+            if (!isValidPID(pid)) {
+                showMessage('registerError', '请输入有效的身份证号（15或18位）');
+                return;
+            }
+            
+            // 验证手机号格式
+            if (!isValidPhone(telephone)) {
+                showMessage('registerError', '请输入有效的手机号（11位，1开头）');
+                return;
+            }
+            
+            // 验证邮箱格式（可选）
+            if (email && !isValidEmail(email)) {
+                showMessage('registerError', '请输入有效的邮箱地址');
+                return;
+            }
+            
+            // 显示加载中
+            document.getElementById('registerLoading').style.display = 'block';
+            hideMessages('register');
+            
+            // 准备用户数据 - 对应 sysuser 表字段
+            const userData = {
+                user_name: userName,
+                password: password,
+                email: email,
+                mobile: telephone,
+                pid: pid,
+                address: address,
+                is_active: true  // 新注册用户默认激活
+            };
+            
+            console.log('注册用户数据:', userData);
+            
+            // 调用 sysuser 的 API 创建新用户
+            const registerUrl = 'http://127.0.0.1:8000/api-user/';
+            
+            fetch(registerUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(response => {
+                document.getElementById('registerLoading').style.display = 'none';
+                
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        let errorMsg = `注册失败 (${response.status})`;
+                        try {
+                            const errorData = JSON.parse(text);
+                            // 处理可能的错误格式
+                            if (typeof errorData === 'object') {
+                                const errorMessages = [];
+                                for (const [field, messages] of Object.entries(errorData)) {
+                                    if (Array.isArray(messages)) {
+                                        errorMessages.push(`${field}: ${messages.join(', ')}`);
+                                    } else {
+                                        errorMessages.push(`${field}: ${messages}`);
+                                    }
+                                }
+                                errorMsg = errorMessages.join('; ');
+                            } else if (errorData.message || errorData.error) {
+                                errorMsg = errorData.message || errorData.error;
+                            }
+                        } catch (e) {
+                            if (text && text.length < 100) {
+                                errorMsg += `: ${text}`;
+                            }
+                        }
+                        throw new Error(errorMsg);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                showMessage('registerSuccess', '注册成功！请使用您的用户名和密码登录。');
+                
+                // 可选：同时创建对应的 userinfo 记录（如果需要保持两个表同步）
+                createUserInfoRecord(data.user_id || data.id, userName, pid, telephone, address);
+                
+                // 3秒后关闭模态框
+                setTimeout(() => {
+                    hideRegisterModal();
+                }, 3000);
+            })
+            .catch(error => {
+                document.getElementById('registerLoading').style.display = 'none';
+                console.error('注册错误:', error);
+                showMessage('registerError', error.message);
+            });
+        }
+        
+        // 可选：在 userinfo 表中创建对应记录
+        function createUserInfoRecord(userId, userName, pid, telephone, address) {
+            const userInfoData = {
+                customer_name: userName,
+                pid: pid,
+                telephone: telephone,
+                address: address
+            };
+            
+            const userInfoUrl = 'http://127.0.0.1:8000/api-userinfo/';
+            
+            fetch(userInfoUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userInfoData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Userinfo 记录创建成功');
+                }
+            })
+            .catch(error => {
+                console.warn('创建 userinfo 记录失败:', error);
+                // 这只是一个可选操作，失败不影响主要注册流程
+            });
+        }
+        
+        // 原登录功能保持不变
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 获取表单数据
+            const userName = document.getElementById('user_name').value.trim();
+            const password = document.getElementById('password').value;
+            const loginButton = document.getElementById('loginButton');
+            
+            // 重置错误信息
+            document.getElementById('usernameError').style.display = 'none';
+            document.getElementById('passwordError').style.display = 'none';
+            document.getElementById('loginError').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('loginError').style.color = "#e74c3c";
+            
+            // 验证表单
+            let isValid = true;
+            
+            if (!userName) {
+                document.getElementById('usernameError').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!password) {
+                document.getElementById('passwordError').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!isValid) return;
+            
+            // 获取API URL
+            let apiUrl = 'http://127.0.0.1:8000/api-user/login/';
+            
+            // 禁用登录按钮并显示加载指示器
+            loginButton.disabled = true;
+            document.getElementById('loadingIndicator').style.display = 'block';
+            
+            // 准备发送到API的数据
+            const loginData = {
+                user_name: userName,
+                password: password
+            };
+            
+            console.log('发送登录请求到:', apiUrl);
+            console.log('登录数据:', { user_name: userName, password: '***' });
+            
+            // 调用登录API
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(loginData)
+            })
+            .then(response => {
+                console.log('收到响应状态:', response.status, response.statusText);
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        let errorMessage = `HTTP错误! 状态: ${response.status}`;
+                        try {
+                            const errorData = JSON.parse(text);
+                            if (errorData.message) {
+                                errorMessage = errorData.message;
+                            }
+                        } catch (e) {
+                            if (text && text.length < 100) {
+                                errorMessage += ` - ${text}`;
+                            }
+                        }
+                        throw new Error(errorMessage);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('登录响应数据:', data);
+                // 隐藏加载指示器
+                document.getElementById('loadingIndicator').style.display = 'none';
+                loginButton.disabled = false;
+                
+                // 处理登录响应
+                if (data.success || data.user_id) {
+                    // 登录成功
+                    const userId = data.user_id;
+                    console.log('登录成功，用户ID:', userId);
+                    
+                    // 显示成功消息
+                    document.getElementById('successMessage').textContent = "登录成功! 正在跳转...";
+                    document.getElementById('successMessage').style.color = "green";
+                    document.getElementById('successMessage').style.display = 'block';
+                    
+                    // 延迟跳转
+                    setTimeout(() => {
+                        // 跳转到用户信息页面
+                        window.location.href = `/static/index.html?user_id=${userId}&user_name=${encodeURIComponent(data.user_name || userName)}`;
+                    }, 1000);
+                } else {
+                    // 登录失败
+                    const errorMsg = data.message || data.error || '登录失败，请检查用户名和密码';
+                    document.getElementById('loginError').textContent = errorMsg;
+                    document.getElementById('loginError').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('登录错误详情:', error);
+                // 隐藏加载指示器
+                document.getElementById('loadingIndicator').style.display = 'none';
+                loginButton.disabled = false;
+                
+                // 显示详细的错误信息
+                let errorMessage = `登录失败: ${error.message}`;
+                
+                // 针对特定错误的友好提示
+                if (error.message.includes('404')) {
+                    errorMessage = `
+                        <strong>API接口不存在 (404错误)</strong><br>
+                        请检查：<br>
+                        1. Django服务器是否运行<br>
+                        2. 路由配置是否正确<br>
+                        3. API URL: ${apiUrl}<br><br>
+                        <button onclick="testApiRoutes()" style="padding: 5px 10px; margin: 5px; background: #6a11cb; color: white; border: none; border-radius: 4px; cursor: pointer;">测试路由</button>
+                    `;
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMessage = `
+                        <strong>无法连接到服务器</strong><br>
+                        请确保Django服务器正在运行：<br>
+                        <code>python manage.py runserver</code>
+                    `;
+                }
+                
+                document.getElementById('loginError').innerHTML = errorMessage;
+                document.getElementById('loginError').style.display = 'block';
+            });
+        });
+        
+        // 路由测试函数
+        function testApiRoutes() {
+            const baseUrl = 'http://127.0.0.1:8000';
+            const endpoints = [
+                '/api-user/',
+                '/api-user/login/',
+                '/api-userinfo/',
+                '/admin/'
+            ];
+            
+            endpoints.forEach(endpoint => {
+                fetch(baseUrl + endpoint)
+                    .then(response => {
+                        alert(`${endpoint} → 状态: ${response.status}`);
+                    })
+                    .catch(err => {
+                        alert(`${endpoint} → 错误: ${err.message}`);
+                    });
+            });
+        }
+        
+        // 输入框实时验证 - 登录表单
+        document.getElementById('user_name').addEventListener('input', function() {
+            if (this.value.trim()) {
+                document.getElementById('usernameError').style.display = 'none';
+            }
+        });
+        
+        document.getElementById('password').addEventListener('input', function() {
+            if (this.value) {
+                document.getElementById('passwordError').style.display = 'none';
+            }
+        });
+        
+        // =========== 注册和忘记密码表单实时验证 ===========
+        
+        // 忘记密码表单的密码匹配验证
+        function validatePasswordMatch() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const confirmInput = document.getElementById('confirmPassword');
+            
+            if (confirmPassword && newPassword !== confirmPassword) {
+                confirmInput.style.borderColor = '#e74c3c';
+                confirmInput.style.boxShadow = '0 0 0 3px rgba(231, 76, 60, 0.1)';
+            } else if (confirmPassword) {
+                confirmInput.style.borderColor = '#2ecc71';
+                confirmInput.style.boxShadow = '0 0 0 3px rgba(46, 204, 113, 0.1)';
+            } else {
+                confirmInput.style.borderColor = '#ddd';
+                confirmInput.style.boxShadow = '';
+            }
+        }
+        
+        // 绑定忘记密码表单的密码验证事件
+        document.getElementById('newPassword').addEventListener('input', validatePasswordMatch);
+        document.getElementById('confirmPassword').addEventListener('input', validatePasswordMatch);
+        
+        // 注册表单身份证号验证
+        document.getElementById('registerPid').addEventListener('input', function() {
+            const pid = this.value.trim();
+            if (pid && !isValidPID(pid)) {
+                this.style.borderColor = '#e74c3c';
+                this.style.boxShadow = '0 0 0 3px rgba(231, 76, 60, 0.1)';
+            } else {
+                this.style.borderColor = '#ddd';
+                this.style.boxShadow = '';
+            }
+        });
+        
+        // 注册表单手机号验证
+        document.getElementById('registerTelephone').addEventListener('input', function() {
+            const phone = this.value.trim();
+            if (phone && !isValidPhone(phone)) {
+                this.style.borderColor = '#e74c3c';
+                this.style.boxShadow = '0 0 0 3px rgba(231, 76, 60, 0.1)';
+            } else {
+                this.style.borderColor = '#ddd';
+                this.style.boxShadow = '';
+            }
+        });
+        
+        // 注册表单邮箱验证
+        document.getElementById('registerEmail').addEventListener('input', function() {
+            const email = this.value.trim();
+            if (email && !isValidEmail(email)) {
+                this.style.borderColor = '#e74c3c';
+                this.style.boxShadow = '0 0 0 3px rgba(231, 76, 60, 0.1)';
+            } else {
+                this.style.borderColor = '#ddd';
+                this.style.boxShadow = '';
+            }
+        });
+        
+        // 注册表单密码匹配验证
+        function validateRegisterPassword() {
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            const confirmInput = document.getElementById('registerConfirmPassword');
+            
+            if (confirmPassword && password !== confirmPassword) {
+                confirmInput.style.borderColor = '#e74c3c';
+                confirmInput.style.boxShadow = '0 0 0 3px rgba(231, 76, 60, 0.1)';
+            } else if (confirmPassword) {
+                confirmInput.style.borderColor = '#2ecc71';
+                confirmInput.style.boxShadow = '0 0 0 3px rgba(46, 204, 113, 0.1)';
+            } else {
+                confirmInput.style.borderColor = '#ddd';
+                confirmInput.style.boxShadow = '';
+            }
+        }
+        
+        // 绑定注册表单密码验证事件
+        document.getElementById('registerPassword').addEventListener('input', validateRegisterPassword);
+        document.getElementById('registerConfirmPassword').addEventListener('input', validateRegisterPassword);
+        
+    </script>
+</body>
+</html>

@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-bg: #f8f9fa;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 15px 20px;
+        }
+        
+        .table-container {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .table th {
+            background-color: var(--light-bg);
+            border-top: none;
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #2980b9);
+            border: none;
+            border-radius: 6px;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
+            border: none;
+            border-radius: 6px;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+            border: none;
+            border-radius: 6px;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #d35400);
+            border: none;
+            border-radius: 6px;
+        }
+        
+        .action-buttons .btn {
+            margin-right: 5px;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 12px;
+            color: #6c757d;
+        }
+        
+        .search-box input {
+            padding-left: 40px;
+        }
+        
+        /* 修改统计卡片样式开始 */
+        .row .col-md-4 {
+            width: 33.333333%;
+        }
+        
+        .stats-card {
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            height: 100%;
+            color: white;
+            text-align: left !important; /* 覆盖原有的居中样式 */
+            margin-bottom: 20px;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stats-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .stats-card .count {
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 5px;
+        }
+        
+        .stats-card .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+        
+        .stats-card i {
+            font-size: 2rem;
+            margin-bottom: 0;
+        }
+        
+        .stats-card.user-count {
+            background: linear-gradient(135deg, var(--primary-color), #2980b9);
+        }
+        
+        .stats-card.role-count {
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+        }
+        /* 修改统计卡片样式结束 */
+        
+        .role-badge {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+        
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .role-item {
+            padding: 10px 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .role-item:hover {
+            background-color: #f8f9fa;
+            border-color: var(--primary-color);
+        }
+        
+        .role-item.selected {
+            background-color: #e3f2fd;
+            border-color: var(--primary-color);
+        }
+        
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1055;
+        }
+        
+        .toast {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        
+        .user-roles-display {
+            max-width: 200px;
+        }
+        
+        .role-chip {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin: 2px;
+        }
+        
+        .api-debug {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+        
+        .debug-toggle {
+            cursor: pointer;
+            color: var(--primary-color);
+            font-size: 0.8rem;
+        }
+        
+        .api-status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+        
+        .api-status.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .api-status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .api-config {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+        
+        .api-endpoint {
+            font-family: monospace;
+            background-color: #e9ecef;
+            padding: 2px 5px;
+            border-radius: 3px;
+            margin: 2px;
+        }
+        
+        .custom-endpoint {
+            margin-top: 10px;
+        }
+        
+        .custom-endpoint input {
+            font-family: monospace;
+        }
+
+                /* 添加搜索框在header中的样式 */
+        .card-header .search-box {
+            position: relative;
+            min-width: 220px;
+        }
+
+        .card-header .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            font-size: 0.875rem;
+            z-index: 1;
+        }
+
+        .card-header .search-box input {
+            padding-left: 35px;
+            height: 32px;
+            font-size: 0.875rem;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+            background-color: white;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .card-header .search-box input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .card-header .d-flex {
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container mt-4">
+        <!-- 统计卡片 -->
+        <!-- 统计卡片 - 修改为三个并均匀分布 -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="stats-card user-count">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon me-3">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                        <div>
+                            <div class="count" id="user-count">0</div>
+                            <div class="label">总用户数</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card role-count">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon me-3">
+                            <i class="fas fa-user-tag fa-2x"></i>
+                        </div>
+                        <div>
+                            <div class="count" id="role-count">0</div>
+                            <div class="label">总角色数</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);">
+                    <div class="d-flex align-items-center">
+                        <div class="stats-icon me-3">
+                            <i class="fas fa-user-plus fa-2x"></i>
+                        </div>
+                        <div>
+                            <div class="count" id="today-count">0</div>
+                            <div class="label">今日新增</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+        <!-- 用户管理卡片 -->
+        <!-- 用户管理卡片 -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-user-cog me-2"></i>用户管理</h5>
+                <div class="d-flex align-items-center">
+                    <!-- 搜索框移动到刷新按钮前面 -->
+                    <div class="search-box me-3">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="form-control" id="search-input" placeholder="搜索用户..." style="width: 220px;">
+                    </div>
+                    <button class="btn btn-light btn-sm me-2" id="refresh-btn">
+                        <i class="fas fa-sync-alt"></i> 刷新
+                    </button>
+                    <button class="btn btn-success btn-sm" id="add-user-btn">
+                        <i class="fas fa-plus-circle"></i> 添加用户
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- 用户表格 -->
+                <div class="table-container">
+                    <div class="loading-spinner" id="table-loading">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">加载中...</span>
+                        </div>
+                        <p class="mt-2">正在加载用户数据...</p>
+                    </div>
+                    <table class="table table-hover" id="user-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>用户信息</th>
+                                <th>联系方式</th>
+                                <th>角色</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-table-body">
+                            <!-- 用户数据将通过JS动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 分页 -->
+                <div class="pagination-container" id="pagination-container">
+                    <!-- 分页将通过JS动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑用户模态框 -->
+    <div class="modal fade" id="user-modal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="user-modal-title">添加用户</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="关闭"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="user-form">
+                        <input type="hidden" id="user-id">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="user-name" class="form-label">用户名</label>
+                                    <input type="text" class="form-control" id="user-name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">邮箱</label>
+                                    <input type="email" class="form-control" id="email" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="mobile" class="form-label">手机号</label>
+                                    <input type="text" class="form-control" id="mobile">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="pid" class="form-label">身份证号</label>
+                                    <input type="text" class="form-control" id="pid">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="address" class="form-label">地址</label>
+                            <textarea class="form-control" id="address" rows="2"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">密码</label>
+                                    <input type="password" class="form-control" id="password">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="confirm-password" class="form-label">确认密码</label>
+                                    <input type="password" class="form-control" id="confirm-password">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="save-user-btn">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分配角色模态框 -->
+    <div class="modal fade" id="role-modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">分配角色</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+                </div>
+                <div class="modal-body">
+                    <p>为用户 <strong id="assign-user-name"></strong> 分配角色：</p>
+                    <div id="roles-container">
+                        <!-- 角色列表将通过JS动态加载 -->
+                    </div>
+                    <div class="api-config mt-3">
+                        <small class="text-muted">API配置:</small>
+                        <div class="mt-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="api-mode" id="api-real" value="real">
+                                <label class="form-check-label" for="api-real">
+                                    使用真实API (需要后端支持)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="api-mode" id="api-mock" value="mock" checked>
+                                <label class="form-check-label" for="api-mock">
+                                    使用模拟数据 (仅前端演示)
+                                </label>
+                            </div>
+                        </div>
+                        <div class="custom-endpoint mt-2">
+                            <label for="api-endpoint" class="form-label">自定义API端点:</label>
+                            <input type="text" class="form-control" id="api-endpoint" placeholder="/api-userrole/" value="/api-userrole/">
+                            <small class="text-muted">如果使用真实API，请在此输入正确的API端点</small>
+                        </div>
+                    </div>
+                    <div class="api-debug mt-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">API调试信息:</small>
+                            <span class="debug-toggle" id="debug-toggle">显示详细信息</span>
+                        </div>
+                        <div id="api-debug-info" style="display: none;"></div>
+                        <div id="api-status" class="api-status" style="display: none;"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="save-roles-btn">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div class="modal fade" id="delete-modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">确认删除</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+                </div>
+                <div class="modal-body">
+                    <p>确定要删除用户 <strong id="delete-user-name"></strong> 吗？此操作不可恢复。</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-danger" id="confirm-delete-btn">删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 消息提示容器 -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // 全局变量
+            let currentPage = 1;
+            let totalPages = 1;
+            let currentUserId = null;
+            let allRoles = [];
+            let userRoleMap = {}; // 存储用户和角色的映射关系
+            let currentUserRoles = []; // 当前用户的角色
+            let apiMode = 'mock'; // API模式: 'real' 或 'mock'
+
+            // 初始化页面
+            loadUsers();
+            loadAllRoles();
+            loadUserRoles(); 
+            // 显示消息提示
+            function showToast(message, type = 'info') {
+                const toastId = 'toast-' + Date.now();
+                const bgClass = type === 'success' ? 'bg-success' : 
+                               type === 'error' ? 'bg-danger' : 
+                               type === 'warning' ? 'bg-warning' : 'bg-info';
+                
+                const toastHTML = `
+                    <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0" role="alert">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                ${message}
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                        </div>
+                    </div>
+                `;
+                
+                $('#toast-container').append(toastHTML);
+                const toastElement = document.getElementById(toastId);
+                const toast = new bootstrap.Toast(toastElement);
+                toast.show();
+                
+                // 移除DOM元素
+                toastElement.addEventListener('hidden.bs.toast', function() {
+                    $(this).remove();
+                });
+            }
+
+            // 更新API调试信息
+            function updateApiDebugInfo(message, showDetails = false) {
+                $('#api-debug-info').html(`<small>${message}</small>`);
+                if (showDetails) {
+                    $('#api-debug-info').show();
+                }
+            }
+
+            // 更新API状态
+            function updateApiStatus(message, type = 'success') {
+                const statusElement = $('#api-status');
+                statusElement.removeClass('success error').addClass(type);
+                statusElement.html(`<small>${message}</small>`);
+                statusElement.show();
+            }
+
+            // 隐藏API状态
+            function hideApiStatus() {
+                $('#api-status').hide();
+            }
+
+            // 切换调试信息显示
+            $('#debug-toggle').click(function() {
+                const debugInfo = $('#api-debug-info');
+                if (debugInfo.is(':visible')) {
+                    debugInfo.hide();
+                    $(this).text('显示详细信息');
+                } else {
+                    debugInfo.show();
+                    $(this).text('隐藏详细信息');
+                }
+            });
+
+            // API模式切换
+            $('input[name="api-mode"]').change(function() {
+                apiMode = $(this).val();
+                updateApiDebugInfo(`已切换到${apiMode === 'real' ? '真实API' : '模拟数据'}模式`);
+            });
+
+            // 加载用户数据
+            function loadUsers(page = 1, search = '') {
+                $('#table-loading').show();
+                $('#user-table-body').empty();
+                
+                const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
+                
+                $.ajax({
+                    url: `/api-user/?page=${page}${searchParam}`,
+                    type: 'GET',
+                    success: function(response) {
+                        $('#table-loading').hide();
+                        displayUsers(response.results);
+                        updatePagination(response);
+                        updateStats(response.count);
+                    },
+                    error: function(xhr, status, error) {
+                        $('#table-loading').hide();
+                        console.error('加载用户数据失败:', error);
+                        showToast('加载用户数据失败，请稍后重试。', 'error');
+                    }
+                });
+            }
+
+            // 显示用户数据
+            function displayUsers(users) {
+                const tbody = $('#user-table-body');
+                tbody.empty();
+                
+                if (users.length === 0) {
+                    tbody.append(`
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <i class="fas fa-user-slash fa-2x text-muted mb-2"></i>
+                                <p class="text-muted">没有找到用户数据</p>
+                            </td>
+                        </tr>
+                    `);
+                    return;
+                }
+                
+                users.forEach(user => {
+                    const createTime = new Date(user.create_time).toLocaleDateString();
+                   
+                    
+                    // 获取用户角色
+                    const userRoles = userRoleMap[user.user_id] || [];
+                    const roleNames = userRoles.map(roleId => {
+                        const role = allRoles.find(r => r.role_id === roleId);
+                        return role ? role.role_name : '未知角色';
+                    });
+                    
+                    const roleDisplay = roleNames.length > 0 ? 
+                        roleNames.map(name => `<span class="role-chip">${name}</span>`).join('') : 
+                        '<span class="text-muted">未分配</span>';
+                    
+                    const row = `
+                        <tr>
+                            <td>${user.user_id}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="user-avatar me-2">
+                                        ${user.user_name ? user.user_name.charAt(0).toUpperCase() : 'U'}
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">${user.user_name || '未设置'}</div>
+                                        <small class="text-muted">${user.pid || '无身份证号'}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div>${user.email || '未设置'}</div>
+                                <small class="text-muted">${user.mobile || '无手机号'}</small>
+                            </td>
+                            <td class="user-roles-display">${roleDisplay}</td>
+                            <td>${createTime}</td>
+                            
+                            <td class="action-buttons">
+                                <button class="btn btn-sm btn-outline-primary edit-user" data-id="${user.user_id}">
+                                    <i class="fas fa-edit"></i> 编辑
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning assign-roles" data-id="${user.user_id}" data-name="${user.user_name || '未命名用户'}">
+                                    <i class="fas fa-user-tag"></i> 分配角色
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger delete-user" data-id="${user.user_id}" data-name="${user.user_name || '未命名用户'}">
+                                    <i class="fas fa-trash"></i> 删除
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.append(row);
+                });
+                
+                // 绑定操作按钮事件
+                $('.edit-user').click(function() {
+                    const userId = $(this).data('id');
+                    editUser(userId);
+                });
+                
+                $('.assign-roles').click(function() {
+                    const userId = $(this).data('id');
+                    const userName = $(this).data('name');
+                    openRoleModal(userId, userName);
+                });
+                
+                $('.delete-user').click(function() {
+                    const userId = $(this).data('id');
+                    const userName = $(this).data('name');
+                    openDeleteModal(userId, userName);
+                });
+            }
+
+            // 更新分页
+            function updatePagination(data) {
+                const paginationContainer = $('#pagination-container');
+                paginationContainer.empty();
+                
+                if (data.count === 0) return;
+                
+                totalPages = Math.ceil(data.count / 10); // 假设每页10条
+                
+                let paginationHTML = `
+                    <nav>
+                        <ul class="pagination">
+                `;
+                
+                // 上一页按钮
+                if (data.previous) {
+                    paginationHTML += `
+                        <li class="page-item">
+                            <a class="page-link" href="#" data-page="${currentPage - 1}">上一页</a>
+                        </li>
+                    `;
+                } else {
+                    paginationHTML += `
+                        <li class="page-item disabled">
+                            <span class="page-link">上一页</span>
+                        </li>
+                    `;
+                }
+                
+                // 页码按钮
+                for (let i = 1; i <= totalPages; i++) {
+                    if (i === currentPage) {
+                        paginationHTML += `
+                            <li class="page-item active">
+                                <span class="page-link">${i}</span>
+                            </li>
+                        `;
+                    } else {
+                        paginationHTML += `
+                            <li class="page-item">
+                                <a class="page-link" href="#" data-page="${i}">${i}</a>
+                            </li>
+                        `;
+                    }
+                }
+                
+                // 下一页按钮
+                if (data.next) {
+                    paginationHTML += `
+                        <li class="page-item">
+                            <a class="page-link" href="#" data-page="${currentPage + 1}">下一页</a>
+                        </li>
+                    `;
+                } else {
+                    paginationHTML += `
+                        <li class="page-item disabled">
+                            <span class="page-link">下一页</span>
+                        </li>
+                    `;
+                }
+                
+                paginationHTML += `
+                        </ul>
+                    </nav>
+                `;
+                
+                paginationContainer.html(paginationHTML);
+                
+                // 绑定分页按钮事件
+                $('.page-link').click(function(e) {
+                    e.preventDefault();
+                    const page = $(this).data('page');
+                    if (page) {
+                        currentPage = page;
+                        const search = $('#search-input').val();
+                        loadUsers(page, search);
+                    }
+                });
+            }
+
+            // 更新统计信息
+            function updateStats(userCount) {
+                $('#user-count').text(userCount);
+                // 这里可以添加其他统计信息的更新
+            }
+
+            // 加载所有角色
+            function loadAllRoles() {
+                // 根据API文档，使用正确的API端点
+                $.ajax({
+                    url: '/api-role/',
+                    type: 'GET',
+                    success: function(response) {
+                        allRoles = response.results;
+                        $('#role-count').text(response.count);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('加载角色数据失败:', error);
+                        // 使用模拟数据作为备选
+                        allRoles = [
+                            { role_id: 1, role_name: '管理员', description: '系统管理员，拥有所有权限' },
+                            { role_id: 2, role_name: '编辑', description: '内容编辑，可以创建和编辑内容' },
+                            { role_id: 3, role_name: '查看者', description: '只能查看内容，不能编辑' },
+                            { role_id: 4, role_name: '审核员', description: '审核用户提交的内容' }
+                        ];
+                        showToast('使用模拟角色数据', 'warning');
+                    }
+                });
+            }
+            // 加载用户角色映射关系
+            function loadUserRoles() {
+                $.ajax({
+                    url: '/api-userrole/',
+                    type: 'GET',
+                    success: function(response) {
+                        userRoleMap = {};
+                        response.results.forEach(userRole => {
+                            // 注意：这里也要改为 user_id
+                            const userId = userRole.user_id || userRole.user;
+                            const roleId = userRole.role_id || userRole.role;
+                            
+                            if (!userRoleMap[userId]) {
+                                userRoleMap[userId] = [];
+                            }
+                            userRoleMap[userId].push(roleId);
+                        });
+                        
+                        // 刷新用户表格显示
+                        loadUsers(currentPage, $('#search-input').val());
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('加载用户角色映射失败:', error);
+                        showToast('加载用户角色数据失败', 'error');
+                    }
+                });
+            }
+            // 编辑用户
+            function editUser(userId) {
+                // 这里应该从API获取用户详情
+                $.ajax({
+                    url: `/api-user/${userId}/`,
+                    type: 'GET',
+                    success: function(user) {
+                        $('#user-modal-title').text('编辑用户');
+                        $('#user-id').val(user.user_id);
+                        $('#user-name').val(user.user_name);
+                        $('#email').val(user.email);
+                        $('#mobile').val(user.mobile);
+                        $('#pid').val(user.pid);
+                        $('#address').val(user.address);
+                        $('#is-active').prop('checked', user.is_active);
+                        
+                        // 清空密码字段
+                        $('#password').val('');
+                        $('#confirm-password').val('');
+                        
+                        $('#user-modal').modal('show');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('获取用户详情失败:', error);
+                        showToast('获取用户详情失败', 'error');
+                    }
+                });
+            }
+
+            // 打开分配角色模态框
+            function openRoleModal(userId, userName) {
+                currentUserId = userId;
+                $('#assign-user-name').text(userName);
+                
+                // 清空角色容器
+                const rolesContainer = $('#roles-container');
+                rolesContainer.html('<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">加载中...</span></div></div>');
+                
+                // 获取用户当前角色
+                currentUserRoles = userRoleMap[userId] || [];
+                
+                // 添加角色选项
+                setTimeout(() => {
+                    rolesContainer.empty();
+                    
+                    allRoles.forEach(role => {
+                        const isSelected = currentUserRoles.includes(role.role_id);
+                        const roleItem = `
+                            <div class="role-item ${isSelected ? 'selected' : ''}" data-role-id="${role.role_id}">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" ${isSelected ? 'checked' : ''}>
+                                    <label class="form-check-label w-100">
+                                        <strong>${role.role_name}</strong>
+                                        <div class="text-muted small">${role.description}</div>
+                                    </label>
+                                </div>
+                            </div>
+                        `;
+                        rolesContainer.append(roleItem);
+                    });
+                    
+                    // 绑定角色选择事件
+                    $('.role-item').click(function() {
+                        const checkbox = $(this).find('input[type="checkbox"]');
+                        checkbox.prop('checked', !checkbox.prop('checked'));
+                        $(this).toggleClass('selected');
+                    });
+                }, 500);
+                
+                // 更新API调试信息
+                updateApiDebugInfo(`用户ID: ${userId}, 当前角色: ${currentUserRoles.join(', ')}`);
+                hideApiStatus();
+                
+                $('#role-modal').modal('show');
+            }
+
+            // 打开删除确认模态框
+            function openDeleteModal(userId, userName) {
+                currentUserId = userId;
+                $('#delete-user-name').text(userName);
+                $('#delete-modal').modal('show');
+            }
+
+            // 事件监听
+            $('#refresh-btn').click(function() {
+                const search = $('#search-input').val();
+                loadUsers(1, search);
+            });
+
+            $('#add-user-btn').click(function() {
+                $('#user-modal-title').text('添加用户');
+                $('#user-form')[0].reset();
+                $('#user-id').val('');
+                $('#user-modal').modal('show');
+            });
+
+            $('#save-user-btn').click(function() {
+                const userId = $('#user-id').val();
+                const userData = {
+                    user_name: $('#user-name').val(),
+                    email: $('#email').val(),
+                    mobile: $('#mobile').val(),
+                    pid: $('#pid').val(),
+                    address: $('#address').val(),
+                    is_active: $('#is-active').is(':checked')
+                };
+                
+                // 如果有密码，添加到数据中
+                const password = $('#password').val();
+                if (password) {
+                    if (password !== $('#confirm-password').val()) {
+                        showToast('密码和确认密码不匹配！', 'error');
+                        return;
+                    }
+                    userData.password = password;
+                }
+                
+                // 确定是添加还是更新
+                const url = userId ? `/api-user/${userId}/` : '/api-user//';
+                const method = userId ? 'PUT' : 'POST';
+                
+                $.ajax({
+                    url: url,
+                    type: method,
+                    contentType: 'application/json',
+                    data: JSON.stringify(userData),
+                    success: function(response) {
+                        $('#user-modal').modal('hide');
+                        loadUsers(currentPage, $('#search-input').val());
+                        showToast(userId ? '用户更新成功！' : '用户添加成功！', 'success');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('保存用户失败:', error);
+                        showToast('保存用户失败，请稍后重试。', 'error');
+                    }
+                });
+            });
+
+            // 分配角色保存按钮点击事件
+            $('#save-roles-btn').click(function() {
+                const selectedRoles = [];
+                $('.role-item input:checked').each(function() {
+                    selectedRoles.push($(this).closest('.role-item').data('role-id'));
+                });
+                
+                // 更新API调试信息
+                updateApiDebugInfo(`正在分配角色: ${selectedRoles.join(', ')} (使用${apiMode === 'real' ? '真实API' : '模拟数据'}模式)`, true);
+                updateApiStatus('正在分配角色...', 'success');
+                
+                // 根据API模式选择分配方法
+                if (apiMode === 'real') {
+                    assignRolesWithRealAPI(selectedRoles);
+                } else {
+                    assignRolesWithMock(selectedRoles);
+                }
+            });
+            // 使用真实API分配角色
+            function assignRolesWithRealAPI(selectedRoles) {
+                const endpoint = '/api-userrole/';
+                
+                updateApiDebugInfo(`使用用户角色API端点: ${endpoint}`, true);
+                updateApiStatus('正在分配角色...', 'success');
+                
+                // 显示加载状态
+                $('#save-roles-btn').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status"></span> 分配中...');
+                
+                // 1. 首先获取用户当前的所有角色关系
+                $.ajax({
+                    url: endpoint,
+                    type: 'GET',
+                    data: { user_id: currentUserId }, // 改为 user_id
+                    success: function(response) {
+                        const currentUserRoles = response.results || [];
+                        
+                        // 2. 删除用户的所有现有角色关系
+                        const deletePromises = currentUserRoles.map(userRole => {
+                            return $.ajax({
+                                url: `${endpoint}${userRole.id}/`,
+                                type: 'DELETE'
+                            });
+                        });
+                        
+                        // 等待所有删除操作完成
+                        Promise.all(deletePromises).then(() => {
+                            // 3. 添加新选中的角色关系
+                            const addPromises = selectedRoles.map(roleId => {
+                                return $.ajax({
+                                    url: endpoint,
+                                    type: 'POST',
+                                    contentType: 'application/json',
+                                    data: JSON.stringify({
+                                        user_id: parseInt(currentUserId),  // 改为 user_id
+                                        role_id: parseInt(roleId)         // 改为 role_id
+                                    })
+                                }).catch(error => {
+                                    // 捕获单个角色添加的错误
+                                    console.error(`添加角色 ${roleId} 失败:`, error);
+                                    let detailedError = `角色 ${roleId}: `;
+                                    
+                                    if (error.responseJSON) {
+                                        detailedError += JSON.stringify(error.responseJSON);
+                                    } else if (error.statusText) {
+                                        detailedError += error.statusText;
+                                    }
+                                    
+                                    return Promise.reject(detailedError);
+                                });
+                            });
+                            
+                            // 等待所有添加操作完成
+                            Promise.all(addPromises).then(() => {
+                                handleRoleAssignmentSuccess(selectedRoles);
+                            }).catch(error => {
+                                console.error('添加新角色失败详情:', error);
+                                handleRoleAssignmentError(null, 'error', '添加新角色失败: ' + error);
+                            });
+                            
+                        }).catch(error => {
+                            console.error('删除旧角色失败详情:', error);
+                            handleRoleAssignmentError(null, 'error', '删除旧角色失败: ' + error);
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('获取现有角色失败详情:', error);
+                        handleRoleAssignmentError(xhr, status, error);
+                    }
+                });
+                
+                function handleRoleAssignmentSuccess(selectedRoles) {
+                    // 恢复按钮状态
+                    $('#save-roles-btn').prop('disabled', false).html('保存');
+                    
+                    $('#role-modal').modal('hide');
+                    
+                    // 更新本地用户角色映射
+                    userRoleMap[currentUserId] = selectedRoles;
+                    
+                    // 重新加载用户角色数据以确保数据同步
+                    loadUserRoles();
+                    
+                    updateApiStatus('角色分配成功！', 'success');
+                    showToast('角色分配成功！', 'success');
+                }
+                
+                function handleRoleAssignmentError(xhr, status, error) {
+                    // 恢复按钮状态
+                    $('#save-roles-btn').prop('disabled', false).html('保存');
+                    
+                    console.error('角色分配失败:', error);
+                    
+                    let errorMessage = '角色分配失败';
+                    if (xhr) {
+                        console.log('HTTP状态码:', xhr.status);
+                        console.log('响应文本:', xhr.responseText);
+                        
+                        errorMessage = `HTTP ${xhr.status}: `;
+                        if (xhr.responseText) {
+                            try {
+                                const errorResponse = JSON.parse(xhr.responseText);
+                                if (typeof errorResponse === 'object') {
+                                    // 处理字段错误
+                                    const fieldErrors = [];
+                                    for (const [field, messages] of Object.entries(errorResponse)) {
+                                        fieldErrors.push(`${field}: ${Array.isArray(messages) ? messages.join(', ') : messages}`);
+                                    }
+                                    errorMessage += fieldErrors.join('; ');
+                                } else {
+                                    errorMessage += errorResponse;
+                                }
+                            } catch (e) {
+                                errorMessage += xhr.responseText || '未知错误';
+                            }
+                        } else {
+                            errorMessage += xhr.statusText || '未知错误';
+                        }
+                    } else if (error) {
+                        errorMessage = error;
+                    }
+                    
+                    updateApiStatus(`角色分配失败: ${errorMessage}`, 'error');
+                    showToast(`角色分配失败: ${errorMessage}`, 'error');
+                }
+            }
+            // 使用模拟数据分配角色
+            function assignRolesWithMock(selectedRoles) {
+                // 模拟API调用延迟
+                setTimeout(() => {
+                    $('#role-modal').modal('hide');
+                    // 更新本地用户角色映射
+                    userRoleMap[currentUserId] = selectedRoles;
+                    // 刷新用户表格显示
+                    loadUsers(currentPage, $('#search-input').val());
+                    updateApiStatus('角色分配成功！(模拟数据)', 'success');
+                    showToast('角色分配成功！(使用模拟数据)', 'success');
+                }, 1000);
+            }
+
+            $('#confirm-delete-btn').click(function() {
+                $.ajax({
+                    url: `/api-user/${currentUserId}/`,
+                    type: 'DELETE',
+                    success: function(response) {
+                        $('#delete-modal').modal('hide');
+                        loadUsers(currentPage, $('#search-input').val());
+                        showToast('用户删除成功！', 'success');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('删除用户失败:', error);
+                        showToast('删除用户失败，请稍后重试。', 'error');
+                    }
+                });
+            });
+
+            // 搜索功能
+            $('#search-input').on('input', function() {
+                const search = $(this).val();
+                currentPage = 1;
+                loadUsers(1, search);
+            });
+        });
+    </script>
+</body>
+</html>

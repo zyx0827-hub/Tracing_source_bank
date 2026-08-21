@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>角色信息管理</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --info-color: #17a2b8;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --admin-color: #8e44ad;
+            --user-color: #3498db;
+            --manager-color: #e67e22;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .main-container {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+            margin: 25px auto;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--admin-color), #6c3483);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            padding: 15px 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .role-logo {
+            background: var(--warning-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            margin-bottom: 25px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--admin-color), #7d3c98);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 20px 25px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .stats-card {
+            text-align: center;
+            padding: 30px 20px;
+            border-left: 5px solid var(--admin-color);
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            border-left-color: var(--warning-color);
+        }
+        
+        .stats-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+        
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .stats-label {
+            color: #6c757d;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .table th {
+            background: linear-gradient(to bottom, #f8f4ff, #e8e2ff);
+            border-top: none;
+            font-weight: 600;
+            padding: 18px 15px;
+            color: var(--admin-color);
+            border-bottom: 2px solid var(--admin-color);
+        }
+        
+        .table td {
+            padding: 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--admin-color), #7d3c98);
+            border: none;
+            border-radius: 10px;
+            font-weight: 500;
+            padding: 12px 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(142, 68, 173, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(142, 68, 173, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+            border: none;
+            border-radius: 8px;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
+            border: none;
+            border-radius: 8px;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #e67e22);
+            border: none;
+            border-radius: 8px;
+        }
+        
+        .btn-info {
+            background: linear-gradient(135deg, var(--info-color), #138496);
+            border: none;
+            border-radius: 8px;
+        }
+        
+        .action-buttons .btn {
+            margin-right: 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            padding: 8px 15px;
+            transition: all 0.2s ease;
+        }
+        
+        .action-buttons .btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 18px;
+            top: 14px;
+            color: #6c757d;
+            z-index: 10;
+        }
+        
+        .search-box input {
+            padding-left: 50px;
+            border-radius: 10px;
+            border: 1px solid #ced4da;
+            transition: all 0.3s ease;
+            height: 50px;
+            font-size: 1rem;
+        }
+        
+        .search-box input:focus {
+            box-shadow: 0 0 0 0.25rem rgba(142, 68, 173, 0.25);
+            border-color: var(--admin-color);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 50px 20px;
+        }
+        
+        .loading-spinner {
+            width: 4rem;
+            height: 4rem;
+            color: var(--admin-color);
+        }
+        
+        .role-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .role-admin {
+            background-color: rgba(142, 68, 173, 0.15);
+            color: var(--admin-color);
+        }
+        
+        .role-manager {
+            background-color: rgba(230, 126, 34, 0.15);
+            color: var(--manager-color);
+        }
+        
+        .role-user {
+            background-color: rgba(52, 152, 219, 0.15);
+            color: var(--user-color);
+        }
+        
+        .role-other {
+            background-color: rgba(46, 204, 113, 0.15);
+            color: var(--success-color);
+        }
+        
+        .pagination .page-link {
+            color: var(--admin-color);
+            border-radius: 8px;
+            margin: 0 4px;
+            border: 1px solid #dee2e6;
+            padding: 10px 18px;
+            font-weight: 500;
+        }
+        
+        .pagination .page-item.active .page-link {
+            background: linear-gradient(135deg, var(--admin-color), var(--secondary-color));
+            border-color: var(--admin-color);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 6rem;
+            margin-bottom: 25px;
+            color: #dee2e6;
+            opacity: 0.7;
+        }
+        
+        .filter-section {
+            background: #f8f4ff;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid #e8e2ff;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, var(--admin-color), #7d3c98);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            padding: 20px 25px;
+        }
+        
+        .form-control, .form-select, .form-textarea {
+            border-radius: 10px;
+            border: 1px solid #ced4da;
+            transition: all 0.3s ease;
+            padding: 12px 15px;
+            font-size: 1rem;
+        }
+        
+        .form-control:focus, .form-select:focus, .form-textarea:focus {
+            box-shadow: 0 0 0 0.25rem rgba(142, 68, 173, 0.25);
+            border-color: var(--admin-color);
+        }
+        
+        footer {
+            background: linear-gradient(135deg, var(--admin-color), #6c3483);
+            color: white;
+            padding: 30px 0;
+            margin-top: 50px;
+            border-radius: 0 0 20px 20px;
+        }
+        
+        .role-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--admin-color), #7d3c98);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .permission-tag {
+            display: inline-block;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 20px;
+            padding: 4px 12px;
+            margin: 2px 4px;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        
+        .role-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid var(--admin-color);
+            transition: all 0.3s ease;
+        }
+        
+        .role-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        .role-card.admin {
+            border-left-color: var(--admin-color);
+        }
+        
+        .role-card.manager {
+            border-left-color: var(--manager-color);
+        }
+        
+        .role-card.user {
+            border-left-color: var(--user-color);
+        }
+        
+        .description-text {
+            color: #6c757d;
+            line-height: 1.5;
+            max-height: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        
+        .view-toggle {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+        }
+        
+        .view-toggle .btn {
+            border-radius: 8px;
+            margin-left: 10px;
+        }
+
+        .permission-section {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+
+        .permission-group {
+            margin-bottom: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border-left: 4px solid var(--admin-color);
+        }
+
+        .permission-item {
+            margin-left: 20px;
+            margin-bottom: 8px;
+        }
+
+        .permission-item .form-check-label {
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <div class="role-logo">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                角色信息管理
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#"><i class="fas fa-users-cog me-1"></i> 角色管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-user-lock me-1"></i> 权限管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-cog me-1"></i> 系统设置</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-sign-out-alt me-1"></i> 退出</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container main-container">
+        <!-- 统计卡片 -->
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="stats-icon text-primary">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="stats-number text-primary" id="total-roles">0</div>
+                    <div class="stats-label">总角色数量</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="stats-icon text-warning">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div class="stats-number text-warning" id="admin-roles">0</div>
+                    <div class="stats-label">管理员角色</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="stats-icon text-info">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="stats-number text-info" id="manager-roles">0</div>
+                    <div class="stats-label">管理级角色</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="stats-icon text-success">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="stats-number text-success" id="user-roles">0</div>
+                    <div class="stats-label">用户级角色</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 角色管理卡片 -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-list me-2"></i>角色列表管理</h5>
+                <div>
+                    <div class="view-toggle">
+                        <button class="btn btn-outline-primary active" id="tableViewBtn">
+                            <i class="fas fa-table"></i> 表格视图
+                        </button>
+                        <button class="btn btn-outline-primary" id="cardViewBtn">
+                            <i class="fas fa-th-large"></i> 卡片视图
+                        </button>
+                    </div>
+                    <button class="btn btn-light" id="add-role-btn">
+                        <i class="fas fa-plus me-1"></i> 新增角色
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- 搜索和过滤 -->
+                <div class="filter-section">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" class="form-control" id="search-input" placeholder="搜索角色名称、描述...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="type-filter">
+                                <option value="">所有角色类型</option>
+                                <option value="admin">管理员</option>
+                                <option value="manager">经理</option>
+                                <option value="user">用户</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex gap-2">
+                                <select class="form-select" id="sort-select">
+                                    <option value="">默认排序</option>
+                                    <option value="role_name">按角色名称</option>
+                                    <option value="role_id">按角色ID</option>
+                                </select>
+                                <button class="btn btn-outline-primary" id="refresh-btn">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 加载指示器 -->
+                <div class="loading" id="loading-indicator">
+                    <div class="spinner-border text-primary loading-spinner" role="status">
+                        <span class="visually-hidden">加载中...</span>
+                    </div>
+                    <p class="mt-3">正在加载角色数据...</p>
+                </div>
+
+                <!-- 表格视图 -->
+                <div class="table-view" id="table-view">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="roles-table">
+                            <thead>
+                                <tr>
+                                    <th>角色ID</th>
+                                    <th>角色信息</th>
+                                    <th>角色类型</th>
+                                    <th>角色描述</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="roles-table-body">
+                                <!-- 角色数据将通过JavaScript动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 卡片视图 -->
+                <div class="card-view" id="card-view" style="display: none;">
+                    <div class="row" id="roles-card-body">
+                        <!-- 角色卡片将通过JavaScript动态填充 -->
+                    </div>
+                </div>
+
+                <!-- 分页 -->
+                <nav aria-label="角色列表分页">
+                    <ul class="pagination justify-content-center mt-4" id="pagination">
+                        <!-- 分页将通过JavaScript动态生成 -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑角色模态框 -->
+    <div class="modal fade" id="role-modal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-title">新增角色</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="role-form">
+                        <input type="hidden" id="role-id">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="role-name" class="form-label">角色名称 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="role-name" required placeholder="请输入角色名称">
+                                    <div class="form-text">角色名称应该简洁明了，如：系统管理员、业务经理等</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="role-type" class="form-label">角色类型 <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="role-type" required>
+                                        <option value="">请选择角色类型</option>
+                                        <option value="admin">管理员</option>
+                                        <option value="manager">经理</option>
+                                        <option value="user">用户</option>
+                                        <option value="other">其他</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="role-description" class="form-label">角色描述</label>
+                            <textarea class="form-control form-textarea" id="role-description" rows="4" placeholder="请输入角色描述信息..."></textarea>
+                            <div class="form-text">详细描述该角色的职责、权限范围和使用场景</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">权限设置</label>
+                            <div class="permission-section" id="permissions-container">
+                                <!-- 权限将通过JavaScript动态加载 -->
+                                <div class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">加载权限中...</span>
+                                    </div>
+                                    <p class="mt-2">正在加载权限数据...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="save-role-btn">保存角色</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div class="modal fade" id="delete-modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">确认删除</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>您确定要删除角色 <strong id="delete-role-name"></strong> 吗？</p>
+                    <p class="text-danger"><small>注意：删除角色可能会影响系统权限分配，此操作无法撤销！</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-danger" id="confirm-delete-btn">确认删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container text-center">
+            <p>&copy; 2023 角色信息管理系统 | 基于API接口开发 | 专业的权限管理解决方案</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // API接口配置
+            const apiBaseUrl = '/api-role/'; // 角色API
+            const menuApiUrl = '/api-menu/'; // 菜单API
+            const roleMenuApiUrl = '/api-rolemenu/'; // 角色菜单关联API
+            
+            // 全局变量
+            let currentPage = 1;
+            let searchQuery = '';
+            let sortField = '';
+            let typeFilter = '';
+            let rolesData = [];
+            let roleToDelete = null;
+            let currentView = 'table'; // 'table' or 'card'
+            let allMenus = []; // 存储所有菜单数据
+
+            // 初始化页面
+            function initPage() {
+                loadRoles();
+                loadAllMenus(); // 加载所有菜单数据
+                
+                // 绑定事件
+                $('#search-input').on('input', function() {
+                    searchQuery = $(this).val();
+                    currentPage = 1;
+                    loadRoles();
+                });
+                
+                $('#type-filter').change(function() {
+                    typeFilter = $(this).val();
+                    currentPage = 1;
+                    loadRoles();
+                });
+                
+                $('#sort-select').change(function() {
+                    sortField = $(this).val();
+                    loadRoles();
+                });
+                
+                $('#refresh-btn').click(function() {
+                    loadRoles();
+                });
+                
+                $('#add-role-btn').click(function() {
+                    showAddModal();
+                });
+                
+                $('#save-role-btn').click(function() {
+                    saveRole();
+                });
+                
+                $('#confirm-delete-btn').click(function() {
+                    deleteRole();
+                });
+                
+                // 视图切换
+                $('#tableViewBtn').click(function() {
+                    switchView('table');
+                });
+                
+                $('#cardViewBtn').click(function() {
+                    switchView('card');
+                });
+            }
+
+            // 加载所有菜单数据
+            // 加载所有菜单数据
+            function loadAllMenus() {
+                console.log('开始加载菜单数据...');
+                
+                // 存储所有菜单数据
+                let allMenuData = [];
+                let currentPage = 1;
+                let hasMorePages = true;
+                
+                // 递归函数获取所有分页
+                function fetchPage(page) {
+                    const url = `${menuApiUrl}?page=${page}`;
+                    console.log(`正在获取第 ${page} 页数据，URL: ${url}`);
+                    
+                    $.ajax({
+                        url: url,
+                        type: 'GET',
+                        dataType: 'json',
+                        success: function(response) {
+                            console.log(`✅ 第 ${page} 页数据加载成功，获取 ${response.results.length} 条记录`);
+                            
+                            // 添加到总数据
+                            allMenuData = allMenuData.concat(response.results);
+                            
+                            // 检查是否还有下一页
+                            if (response.next) {
+                                // 有下一页，继续获取
+                                setTimeout(() => {
+                                    fetchPage(page + 1);
+                                }, 100); // 稍微延迟，避免请求过快
+                            } else {
+                                // 没有下一页，完成加载
+                                console.log(`✅ 所有数据加载完成，共 ${allMenuData.length} 条记录`);
+                                console.log('加载的数据:', allMenuData);
+                                
+                                // 更新全局变量
+                                allMenus = allMenuData;
+                                
+                                // 触发数据加载完成的事件（如果有）
+                                if (typeof onAllMenusLoaded === 'function') {
+                                    onAllMenusLoaded(allMenus);
+                                }
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error(`❌ 第 ${page} 页数据加载失败:`, error);
+                            // 即使失败，也使用已加载的数据
+                            console.log(`使用已加载的 ${allMenuData.length} 条数据`);
+                            allMenus = allMenuData;
+                        }
+                    });
+                }
+                
+                // 开始获取第一页
+                fetchPage(1);
+            }
+
+            // 切换视图
+            function switchView(view) {
+                currentView = view;
+                if (view === 'table') {
+                    $('#table-view').show();
+                    $('#card-view').hide();
+                    $('#tableViewBtn').addClass('active');
+                    $('#cardViewBtn').removeClass('active');
+                } else {
+                    $('#table-view').hide();
+                    $('#card-view').show();
+                    $('#cardViewBtn').addClass('active');
+                    $('#tableViewBtn').removeClass('active');
+                    displayRolesCards(rolesData);
+                }
+            }
+
+            // 加载角色数据
+            function loadRoles() {
+                $('#loading-indicator').show();
+                $('#roles-table-body').empty();
+                $('#roles-card-body').empty();
+                
+                // 构建API URL
+                let url = apiBaseUrl;
+                let params = [];
+                
+                if (searchQuery) {
+                    params.push(`search=${encodeURIComponent(searchQuery)}`);
+                }
+                
+                if (sortField) {
+                    params.push(`ordering=${sortField}`);
+                }
+                
+                if (currentPage > 1) {
+                    params.push(`page=${currentPage}`);
+                }
+                
+                if (params.length > 0) {
+                    url += '?' + params.join('&');
+                }
+                
+                // 发送AJAX请求
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        $('#loading-indicator').hide();
+                        rolesData = response.results || response;
+                        displayRoles(rolesData);
+                        if (currentView === 'card') {
+                            displayRolesCards(rolesData);
+                        }
+                        updatePagination(response);
+                        updateStats(rolesData);
+                    },
+                    error: function(xhr, status, error) {
+                        $('#loading-indicator').hide();
+                        alert('加载角色数据失败: ' + error);
+                    }
+                });
+            }
+
+            // 显示角色数据（表格视图）
+            function displayRoles(roles) {
+                let tableBody = $('#roles-table-body');
+                tableBody.empty();
+                
+                if (roles.length === 0) {
+                    tableBody.append(`
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <div class="empty-state">
+                                    <i class="fas fa-user-shield"></i>
+                                    <p class="text-muted">没有找到角色数据</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `);
+                    return;
+                }
+                
+                roles.forEach(function(role, index) {
+                    // 确定角色类型
+                    let typeClass = '';
+                    let typeText = '';
+                    let roleType = getRoleType(role);
+                    
+                    switch(roleType) {
+                        case 'admin':
+                            typeClass = 'role-admin';
+                            typeText = '管理员';
+                            break;
+                        case 'manager':
+                            typeClass = 'role-manager';
+                            typeText = '经理';
+                            break;
+                        case 'user':
+                            typeClass = 'role-user';
+                            typeText = '用户';
+                            break;
+                        default:
+                            typeClass = 'role-other';
+                            typeText = '其他';
+                    }
+                    
+                    // 过滤条件检查
+                    if (typeFilter && roleType !== typeFilter) {
+                        return;
+                    }
+                    
+                    let row = `
+                        <tr>
+                            <td><strong>${role.role_id || role.id}</strong></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="role-icon">
+                                        <i class="fas fa-${getRoleIcon(roleType)}"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">${role.role_name}</div>
+                                        <div class="text-muted small">创建时间: ${new Date().toLocaleDateString()}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="role-badge ${typeClass}">${typeText}</span></td>
+                            <td>
+                                <div class="description-text">${role.description || '暂无描述'}</div>
+                            </td>
+                            <td class="action-buttons">
+                                <button class="btn btn-sm btn-info view-role" data-index="${index}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-warning edit-role" data-index="${index}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger delete-role" data-index="${index}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.append(row);
+                });
+                
+                // 绑定操作按钮事件
+                $('.view-role').click(function() {
+                    let index = $(this).data('index');
+                    viewRole(rolesData[index]);
+                });
+                
+                $('.edit-role').click(function() {
+                    let index = $(this).data('index');
+                    showEditModal(rolesData[index]);
+                });
+                
+                $('.delete-role').click(function() {
+                    let index = $(this).data('index');
+                    showDeleteModal(rolesData[index]);
+                });
+            }
+
+            // 显示角色卡片（卡片视图）
+            function displayRolesCards(roles) {
+                let cardBody = $('#roles-card-body');
+                cardBody.empty();
+                
+                if (roles.length === 0) {
+                    cardBody.append(`
+                        <div class="col-12">
+                            <div class="empty-state">
+                                <i class="fas fa-user-shield"></i>
+                                <p class="text-muted">没有找到角色数据</p>
+                            </div>
+                        </div>
+                    `);
+                    return;
+                }
+                
+                roles.forEach(function(role, index) {
+                    let roleType = getRoleType(role);
+                    let typeClass = roleType === 'admin' ? 'admin' : 
+                                roleType === 'manager' ? 'manager' : 'user';
+                    
+                    // 过滤条件检查
+                    if (typeFilter && roleType !== typeFilter) {
+                        return;
+                    }
+                    
+                    let card = `
+                        <div class="col-md-6 col-lg-4">
+                            <div class="role-card ${typeClass}">
+                                <div class="d-flex align-items-start mb-3">
+                                    <div class="role-icon">
+                                        <i class="fas fa-${getRoleIcon(roleType)}"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h5 class="mb-1">${role.role_name}</h5>
+                                        <span class="role-badge ${typeClass === 'admin' ? 'role-admin' : 
+                                                            typeClass === 'manager' ? 'role-manager' : 'role-user'}">
+                                            ${typeClass === 'admin' ? '管理员' : 
+                                            typeClass === 'manager' ? '经理' : '用户'}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <p class="description-text">${role.description || '暂无角色描述信息'}</p>
+                                </div>
+                                <div class="mb-3">
+                                    <small class="text-muted">角色ID: ${role.role_id || role.id}</small>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <button class="btn btn-sm btn-info view-role-card" data-index="${index}">
+                                        <i class="fas fa-eye"></i> 查看
+                                    </button>
+                                    <button class="btn btn-sm btn-warning edit-role-card" data-index="${index}">
+                                        <i class="fas fa-edit"></i> 编辑
+                                    </button>
+                                    <button class="btn btn-sm btn-danger delete-role-card" data-index="${index}">
+                                        <i class="fas fa-trash"></i> 删除
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    cardBody.append(card);
+                });
+                
+                // 绑定卡片操作按钮事件
+                $('.view-role-card').click(function() {
+                    let index = $(this).data('index');
+                    viewRole(rolesData[index]);
+                });
+                
+                $('.edit-role-card').click(function() {
+                    let index = $(this).data('index');
+                    showEditModal(rolesData[index]);
+                });
+                
+                $('.delete-role-card').click(function() {
+                    let index = $(this).data('index');
+                    showDeleteModal(rolesData[index]);
+                });
+            }
+
+            // 获取角色类型
+            function getRoleType(role) {
+                const name = role.role_name.toLowerCase();
+                if (name.includes('admin') || name.includes('管理员') || name.includes('系统')) {
+                    return 'admin';
+                } else if (name.includes('manager') || name.includes('经理') || name.includes('主管')) {
+                    return 'manager';
+                } else if (name.includes('user') || name.includes('用户') || name.includes('成员')) {
+                    return 'user';
+                }
+                return 'other';
+            }
+
+            // 获取角色图标
+            function getRoleIcon(roleType) {
+                switch(roleType) {
+                    case 'admin': return 'crown';
+                    case 'manager': return 'user-tie';
+                    case 'user': return 'user';
+                    default: return 'user-circle';
+                }
+            }
+
+            // 查看角色详情
+            function viewRole(role) {
+                let roleType = getRoleType(role);
+                let typeText = roleType === 'admin' ? '管理员' : 
+                            roleType === 'manager' ? '经理' : '用户';
+                
+                alert(`角色详情:\n\n角色ID: ${role.role_id || role.id}\n角色名称: ${role.role_name}\n角色类型: ${typeText}\n角色描述: ${role.description || '无描述'}`);
+            }
+
+            // 更新分页
+            function updatePagination(response) {
+                let pagination = $('#pagination');
+                pagination.empty();
+                
+                if (response.count <= 10) {
+                    return; // 如果数据量小，不显示分页
+                }
+                
+                let totalPages = Math.ceil(response.count / 10);
+                
+                // 上一页按钮
+                if (response.previous) {
+                    pagination.append(`
+                        <li class="page-item">
+                            <a class="page-link" href="#" data-page="${currentPage - 1}">
+                                <i class="fas fa-chevron-left"></i> 上一页
+                            </a>
+                        </li>
+                    `);
+                } else {
+                    pagination.append(`
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">
+                                <i class="fas fa-chevron-left"></i> 上一页
+                            </a>
+                        </li>
+                    `);
+                }
+                
+                // 页码按钮
+                let startPage = Math.max(1, currentPage - 2);
+                let endPage = Math.min(totalPages, startPage + 4);
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    let activeClass = i === currentPage ? 'active' : '';
+                    pagination.append(`
+                        <li class="page-item ${activeClass}">
+                            <a class="page-link" href="#" data-page="${i}">${i}</a>
+                        </li>
+                    `);
+                }
+                
+                // 下一页按钮
+                if (response.next) {
+                    pagination.append(`
+                        <li class="page-item">
+                            <a class="page-link" href="#" data-page="${currentPage + 1}">
+                                下一页 <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    `);
+                } else {
+                    pagination.append(`
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">
+                                下一页 <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    `);
+                }
+                
+                // 绑定分页点击事件
+                $('.page-link').click(function(e) {
+                    e.preventDefault();
+                    let page = $(this).data('page');
+                    if (page) {
+                        currentPage = page;
+                        loadRoles();
+                    }
+                });
+            }
+
+            // 更新统计信息
+            function updateStats(roles) {
+                $('#total-roles').text(roles.length);
+                
+                let adminCount = roles.filter(role => getRoleType(role) === 'admin').length;
+                let managerCount = roles.filter(role => getRoleType(role) === 'manager').length;
+                let userCount = roles.filter(role => getRoleType(role) === 'user').length;
+                
+                $('#admin-roles').text(adminCount);
+                $('#manager-roles').text(managerCount);
+                $('#user-roles').text(userCount);
+            }
+
+            // 加载权限数据到选择框
+            function loadPermissionsToModal() {
+                let container = $('#permissions-container');
+                container.empty();
+                
+                if (allMenus.length === 0) {
+                    container.html('<div class="text-center text-muted">暂无菜单数据</div>');
+                    return;
+                }
+                
+                // 按层级组织菜单
+                let topLevelMenus = allMenus.filter(menu => !menu.parent_id || menu.parent_id === 0)
+                                        .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+                
+                topLevelMenus.forEach(menu => {
+                    let menuGroup = `
+                        <div class="permission-group">
+                            <div class="form-check">
+                                <input class="form-check-input menu-permission parent-menu" type="checkbox" 
+                                    value="${menu.menu_id || menu.id}" id="menu-${menu.menu_id || menu.id}">
+                                <label class="form-check-label fw-bold" for="menu-${menu.menu_id || menu.id}">
+                                    <i class="fas fa-folder me-1"></i> ${menu.menu_name}
+                                </label>
+                            </div>
+                    `;
+                    
+                    // 添加子菜单
+                    let childMenus = allMenus.filter(child => child.parent_id === (menu.menu_id || menu.id))
+                                        .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+                    
+                    if (childMenus.length > 0) {
+                        childMenus.forEach(child => {
+                            menuGroup += `
+                                <div class="permission-item">
+                                    <div class="form-check">
+                                        <input class="form-check-input menu-permission child-menu" type="checkbox" 
+                                            value="${child.menu_id || child.id}" id="menu-${child.menu_id || child.id}">
+                                        <label class="form-check-label" for="menu-${child.menu_id || child.id}">
+                                            <i class="fas fa-folder-open me-1"></i> ${child.menu_name}
+                                        </label>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+                    
+                    menuGroup += `</div>`;
+                    container.append(menuGroup);
+                });
+            }
+
+            // 加载角色已有的权限
+            function loadRolePermissions(roleId) {
+                if (!roleId) return;
+                
+                $.ajax({
+                    url: roleMenuApiUrl + 'get_role_menus/', 
+                    type: 'GET',
+                    dataType: 'json',
+                    data: { role_id: roleId },
+                    success: function(response) {
+                        // 清除所有复选框的选择
+                        $('.menu-permission').prop('checked', false);
+                        
+                        // 设置角色已有的权限
+                        let menuIds = response.menu_ids || [];
+                        console.log('角色已有的菜单ID:', menuIds);
+                        
+                        // 设置角色已有的权限
+                        menuIds.forEach(menuId => {
+                            $(`#menu-${menuId}`).prop('checked', true);
+                        });
+                        
+                        console.log(`成功加载了 ${menuIds.length} 个权限`);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('加载角色权限失败:', error);
+                        console.log('响应状态:', xhr.status);
+                        console.log('响应文本:', xhr.responseText);
+                    }
+                });
+            }
+
+            // 保存角色权限 - 调试版本
+            function saveRolePermissions(roleId) {
+                return new Promise((resolve, reject) => {
+                    let selectedMenus = [];
+                    $('.menu-permission:checked').each(function() {
+                        selectedMenus.push(parseInt($(this).val()));
+                    });
+                    
+                    console.log('保存权限 - 角色ID:', roleId, '选中的菜单:', selectedMenus);
+                    
+                    if (selectedMenus.length === 0) {
+                        console.log('没有选择任何权限');
+                        resolve(); // 如果没有选择任何权限，直接返回
+                        return;
+                    }
+
+                    let roleMenuData = {
+                        role_id: roleId,
+                        menu_ids: selectedMenus
+                    };
+                    
+                    // 先测试一个请求，看看返回的具体错误信息
+                    //let testMenuId = selectedMenus[0];
+                    //console.log('测试第一个权限请求:', testMenuId);
+                    
+                    $.ajax({
+                        url: roleMenuApiUrl + "bulk_assign/",
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(roleMenuData),
+                        success: function(response) {
+                            console.log('测试请求成功:', response);
+                            // 如果测试成功，继续添加其他权限
+                            $('#save-role-btn').prop('disabled', false).html('保存角色');
+                            $('#role-modal').modal('hide');
+                            loadRoles();
+                            alert(`角色${roleId ? '更新' : '添加'}成功，权限已保存`);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('测试请求失败:', error);
+                            console.log('响应状态:', xhr.status);
+                            console.log('响应文本:', xhr.responseText);
+                        }
+                    });
+                });
+            }
+
+            // 添加剩余权限
+            function addRemainingPermissions(roleId, remainingMenus) {
+                return new Promise((resolve, reject) => {
+                    if (remainingMenus.length === 0) {
+                        resolve();
+                        return;
+                    }
+                    
+                    let addPromises = remainingMenus.map(menuId => {
+                        return new Promise((resolveAdd, rejectAdd) => {
+                            // 使用form-data格式，因为JSON格式可能有问题
+                            $.ajax({
+                                url: roleMenuApiUrl,
+                                type: 'POST',
+                                contentType: 'application/x-www-form-urlencoded',
+                                data: `role_id=${roleId}&menu_id=${menuId}`,
+                                success: function(response) {
+                                    console.log(`权限添加成功: role_id=${roleId}, menu_id=${menuId}`);
+                                    resolveAdd();
+                                },
+                                error: function(xhr, status, error) {
+                                    console.error(`权限添加失败: role_id=${roleId}, menu_id=${menuId}`, error);
+                                    // 如果权限已存在，也认为是成功的
+                                    if (xhr.status === 400) {
+                                        console.log('权限可能已存在，继续执行');
+                                        resolveAdd();
+                                    } else {
+                                        rejectAdd(error);
+                                    }
+                                }
+                            });
+                        });
+                    });
+                    
+                    Promise.all(addPromises).then(resolve).catch(reject);
+                });
+            }
+
+            // 显示添加角色模态框
+            function showAddModal() {
+                $('#modal-title').text('新增角色');
+                $('#role-id').val('');
+                $('#role-name').val('');
+                $('#role-type').val('');
+                $('#role-description').val('');
+                
+                // 加载权限数据
+                loadPermissionsToModal();
+                
+                $('#role-modal').modal('show');
+            }
+
+            // 显示编辑角色模态框
+            function showEditModal(role) {
+                $('#modal-title').text('编辑角色');
+                $('#role-id').val(role.role_id || role.id);
+                $('#role-name').val(role.role_name);
+                $('#role-type').val(getRoleType(role));
+                $('#role-description').val(role.description || '');
+                
+                // 加载权限数据并设置已有权限
+                loadPermissionsToModal();
+                setTimeout(() => {
+                    loadRolePermissions(role.role_id || role.id);
+                }, 100);
+                
+                $('#role-modal').modal('show');
+            }
+
+            // 显示删除确认模态框
+            function showDeleteModal(role) {
+                roleToDelete = role;
+                $('#delete-role-name').text(role.role_name);
+                $('#delete-modal').modal('show');
+            }
+
+            // 保存角色
+            function saveRole() {
+                let roleId = $('#role-id').val();
+                let roleData = {
+                    role_name: $('#role-name').val(),
+                    description: $('#role-description').val()
+                };
+                
+                // 验证必填字段
+                if (!roleData.role_name) {
+                    alert('请填写角色名称');
+                    return;
+                }
+                
+                let url = apiBaseUrl;
+                let method = 'POST';
+                
+                if (roleId) {
+                    // 编辑现有角色
+                    url += roleId + '/';
+                    method = 'PUT';
+                }
+                
+                // 显示保存中状态
+                $('#save-role-btn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> 保存中...');
+                
+                $.ajax({
+                    url: url,
+                    type: method,
+                    contentType: 'application/json',
+                    data: JSON.stringify(roleData),
+                    success: function(response) {
+                        let savedRoleId = roleId || response.role_id || response.id;
+                        console.log('角色保存成功，开始保存权限，角色ID:', savedRoleId);
+                        
+                        // 保存权限
+                        saveRolePermissions(savedRoleId);
+                    },
+                    error: function(xhr, status, error) {
+                        $('#save-role-btn').prop('disabled', false).html('保存角色');
+                        alert(`角色${roleId ? '更新' : '添加'}失败: ${error}`);
+                    }
+                });
+            }
+
+            // 删除角色
+            function deleteRole() {
+                if (!roleToDelete) return;
+                
+                let roleId = roleToDelete.role_id || roleToDelete.id;
+                
+                // 直接删除角色，权限关联应该由后端级联删除
+                $.ajax({
+                    url: `${apiBaseUrl}${roleId}/`,
+                    type: 'DELETE',
+                    success: function(response) {
+                        $('#delete-modal').modal('hide');
+                        loadRoles();
+                        alert('角色删除成功');
+                    },
+                    error: function(xhr, status, error) {
+                        alert('角色删除失败: ' + error);
+                    }
+                });
+            }
+
+            // 初始化页面
+            initPage();
+        });
+    </script>
+</body>
+</html>

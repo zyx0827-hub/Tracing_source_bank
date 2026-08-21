@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>菜单管理</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --info-color: #17a2b8;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --bank-blue: #1a4b8c;
+            --bank-gold: #d4af37;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .main-container {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+            margin: 25px auto;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--bank-blue), #0d2d5a);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            padding: 15px 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .bank-logo {
+            background: var(--bank-gold);
+            color: var(--bank-blue);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            margin-bottom: 25px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--bank-blue), #2c5aa0);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 20px 25px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .stats-card {
+            text-align: center;
+            padding: 30px 20px;
+            border-left: 5px solid var(--bank-blue);
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            border-left-color: var(--bank-gold);
+        }
+        
+        .stats-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+        
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .stats-label {
+            color: #6c757d;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        
+        .table th {
+            background: linear-gradient(to bottom, #f1f5f9, #e2e8f0);
+            border-top: none;
+            font-weight: 600;
+            padding: 18px 15px;
+            color: var(--bank-blue);
+            border-bottom: 2px solid var(--bank-blue);
+        }
+        
+        .table td {
+            padding: 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--bank-blue), #2c5aa0);
+            border: none;
+            border-radius: 10px;
+            font-weight: 500;
+            padding: 12px 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(26, 75, 140, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(26, 75, 140, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+            border: none;
+            border-radius: 8px;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
+            border: none;
+            border-radius: 8px;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #e67e22);
+            border: none;
+            border-radius: 8px;
+        }
+        
+        .btn-info {
+            background: linear-gradient(135deg, var(--info-color), #138496);
+            border: none;
+            border-radius: 8px;
+        }
+        
+        .action-buttons .btn {
+            margin-right: 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            padding: 8px 15px;
+            transition: all 0.2s ease;
+        }
+        
+        .action-buttons .btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 18px;
+            top: 14px;
+            color: #6c757d;
+            z-index: 10;
+        }
+        
+        .search-box input {
+            padding-left: 50px;
+            border-radius: 10px;
+            border: 1px solid #ced4da;
+            transition: all 0.3s ease;
+            height: 50px;
+            font-size: 1rem;
+        }
+        
+        .search-box input:focus {
+            box-shadow: 0 0 0 0.25rem rgba(26, 75, 140, 0.25);
+            border-color: var(--bank-blue);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 50px 20px;
+        }
+        
+        .loading-spinner {
+            width: 4rem;
+            height: 4rem;
+            color: var(--bank-blue);
+        }
+        
+        .menu-level {
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .level-1 {
+            background-color: rgba(26, 75, 140, 0.15);
+            color: var(--bank-blue);
+        }
+        
+        .level-2 {
+            background-color: rgba(212, 175, 55, 0.15);
+            color: var(--bank-gold);
+        }
+        
+        .level-3 {
+            background-color: rgba(46, 204, 113, 0.15);
+            color: var(--success-color);
+        }
+        
+        .pagination .page-link {
+            color: var(--bank-blue);
+            border-radius: 8px;
+            margin: 0 4px;
+            border: 1px solid #dee2e6;
+            padding: 10px 18px;
+            font-weight: 500;
+        }
+        
+        .pagination .page-item.active .page-link {
+            background: linear-gradient(135deg, var(--bank-blue), var(--secondary-color));
+            border-color: var(--bank-blue);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 6rem;
+            margin-bottom: 25px;
+            color: #dee2e6;
+            opacity: 0.7;
+        }
+        
+        .filter-section {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, var(--bank-blue), #2c5aa0);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            padding: 20px 25px;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 1px solid #ced4da;
+            transition: all 0.3s ease;
+            padding: 12px 15px;
+            font-size: 1rem;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 0.25rem rgba(26, 75, 140, 0.25);
+            border-color: var(--bank-blue);
+        }
+        
+        footer {
+            background: linear-gradient(135deg, var(--bank-blue), #0d2d5a);
+            color: white;
+            padding: 30px 0;
+            margin-top: 50px;
+            border-radius: 0 0 20px 20px;
+        }
+        
+        .hierarchy-indicator {
+            display: inline-flex;
+            align-items: center;
+            margin-left: 10px;
+        }
+        
+        .hierarchy-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--bank-blue);
+            margin: 0 3px;
+        }
+        
+        .menu-tree {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .tree-node {
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid var(--bank-blue);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .tree-node.child {
+            margin-left: 30px;
+            border-left-color: var(--bank-gold);
+        }
+        
+        .tree-node.grandchild {
+            margin-left: 60px;
+            border-left-color: var(--success-color);
+        }
+        
+        .menu-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--bank-blue), #2c5aa0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .badge-menu {
+            font-size: 0.8rem;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        
+        .menu-url {
+            font-family: 'Courier New', monospace;
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: var(--bank-blue);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container main-container">
+        <!-- 统计卡片 -->
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="stats-icon text-primary">
+                        <i class="fas fa-sitemap"></i>
+                    </div>
+                    <div class="stats-number text-primary" id="total-menus">0</div>
+                    <div class="stats-label">总菜单数量</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="stats-icon text-warning">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="stats-number text-warning" id="top-level-menus">0</div>
+                    <div class="stats-label">顶级菜单</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="stats-icon text-success">
+                        <i class="fas fa-folder"></i>
+                    </div>
+                    <div class="stats-number text-success" id="sub-menus">0</div>
+                    <div class="stats-label">子菜单数量</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="stats-icon text-info">
+                        <i class="fas fa-link"></i>
+                    </div>
+                    <div class="stats-number text-info" id="active-menus">0</div>
+                    <div class="stats-label">活跃菜单</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 菜单管理卡片 -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-list me-2"></i>菜单列表管理</h5>
+                <button class="btn btn-light" id="add-menu-btn">
+                    <i class="fas fa-plus me-1"></i> 新增菜单
+                </button>
+            </div>
+            <div class="card-body">
+                <!-- 搜索和过滤 -->
+                <div class="filter-section">
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" class="form-control" id="search-input" placeholder="搜索菜单名称、URL或备注...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="level-filter">
+                                <option value="">所有菜单级别</option>
+                                <option value="1">一级菜单</option>
+                                <option value="2">二级菜单</option>
+                                <option value="3">三级菜单</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="sort-select">
+                                <option value="">默认排序</option>
+                                <option value="sort_order">按排序号</option>
+                                <option value="menu_name">按菜单名称</option>
+                                <option value="menu_id">按菜单ID</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-outline-primary w-100" id="refresh-btn">
+                                <i class="fas fa-sync-alt me-1"></i> 刷新
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 加载指示器 -->
+                <div class="loading" id="loading-indicator">
+                    <div class="spinner-border text-primary loading-spinner" role="status">
+                        <span class="visually-hidden">加载中...</span>
+                    </div>
+                    <p class="mt-3">正在加载菜单数据...</p>
+                </div>
+
+                <!-- 菜单表格 -->
+                <div class="table-responsive">
+                    <table class="table table-hover" id="menus-table">
+                        <thead>
+                            <tr>
+                                <th>菜单ID</th>
+                                <th>菜单名称</th>
+                                <th>菜单URL</th>
+                                <th>父菜单ID</th>
+                                <th>排序号</th>
+                                <th>菜单级别</th>
+                                <th>备注</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="menus-table-body">
+                            <!-- 菜单数据将通过JavaScript动态填充 -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 分页 -->
+                <nav aria-label="菜单列表分页">
+                    <ul class="pagination justify-content-center" id="pagination">
+                        <!-- 分页将通过JavaScript动态生成 -->
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- 菜单层级结构卡片 -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-project-diagram me-2"></i>菜单层级结构</h5>
+            </div>
+            <div class="card-body">
+                <div class="menu-tree" id="menu-tree">
+                    <!-- 菜单树将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑菜单模态框 -->
+    <div class="modal fade" id="menu-modal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-title">新增菜单</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="menu-form">
+                        <input type="hidden" id="menu-id">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="menu-name" class="form-label">菜单名称 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="menu-name" required placeholder="请输入菜单名称">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="menu-url" class="form-label">菜单URL</label>
+                                    <input type="text" class="form-control" id="menu-url" placeholder="/api/example">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="parent-id" class="form-label">父菜单ID</label>
+                                    <select class="form-select" id="parent-id">
+                                        <option value="0">无父菜单 (顶级菜单)</option>
+                                        <!-- 父菜单选项将通过JavaScript动态生成 -->
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="sort-order" class="form-label">排序号 <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="sort-order" min="0" value="0" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="menu-remark" class="form-label">菜单备注</label>
+                            <textarea class="form-control" id="menu-remark" rows="3" placeholder="请输入菜单备注信息..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="save-menu-btn">保存菜单</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div class="modal fade" id="delete-modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">确认删除</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>您确定要删除菜单 <strong id="delete-menu-name"></strong> 吗？</p>
+                    <p class="text-danger"><small>注意：删除菜单可能会影响系统功能，此操作无法撤销！</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-danger" id="confirm-delete-btn">确认删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container text-center">
+            <p>&copy; 2023 银行菜单管理系统 | 基于API接口开发 | 安全可靠的银行级菜单管理解决方案</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // 全局变量
+            let currentPage = 1;
+            let searchQuery = '';
+            let sortField = '';
+            let levelFilter = '';
+            let menusData = [];
+            let menuToDelete = null;
+
+
+            // 初始化页面
+            function initPage() {
+                loadMenus();
+                
+                // 绑定事件
+                $('#search-input').on('input', function() {
+                    searchQuery = $(this).val();
+                    currentPage = 1;
+                    loadMenus();
+                });
+                
+                $('#level-filter').change(function() {
+                    levelFilter = $(this).val();
+                    currentPage = 1;
+                    loadMenus();
+                });
+                
+                $('#sort-select').change(function() {
+                    sortField = $(this).val();
+                    loadMenus();
+                });
+                
+                $('#refresh-btn').click(function() {
+                    loadMenus();
+                });
+                
+                $('#add-menu-btn').click(function() {
+                    showAddModal();
+                });
+                
+                $('#save-menu-btn').click(function() {
+                    saveMenu();
+                });
+                
+                $('#confirm-delete-btn').click(function() {
+                    deleteMenu();
+                });
+            }
+
+            // 加载菜单数据
+            function loadMenus() {
+                $('#loading-indicator').show();
+                $('#menus-table-body').empty();
+                
+                // 构建API URL
+                let url = '/api-menu/';
+                let params = [];
+                
+                if (searchQuery) {
+                    params.push(`search=${encodeURIComponent(searchQuery)}`);
+                }
+                
+                if (sortField) {
+                    params.push(`ordering=${sortField}`);
+                }
+                
+                if (currentPage > 1) {
+                    params.push(`page=${currentPage}`);
+                }
+                
+                if (params.length > 0) {
+                    url += '?' + params.join('&');
+                }
+                
+                // 发送AJAX请求
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        $('#loading-indicator').hide();
+                        menusData = response.results;
+                        displayMenus(menusData);
+                        updatePagination(response);
+                        updateStats(menusData);
+                        updateMenuTree(menusData);
+                        updateParentSelect(menusData);
+                    },
+                    error: function(xhr, status, error) {
+                        $('#loading-indicator').hide();
+                        alert('加载菜单数据失败: ' + error);
+                    }
+                });
+            }
+
+            // 显示菜单数据
+            function displayMenus(menus) {
+                let tableBody = $('#menus-table-body');
+                tableBody.empty();
+                
+                if (menus.length === 0) {
+                    tableBody.append(`
+                        <tr>
+                            <td colspan="8" class="text-center py-5">
+                                <div class="empty-state">
+                                    <i class="fas fa-sitemap"></i>
+                                    <p class="text-muted">没有找到菜单数据</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `);
+                    return;
+                }
+                
+                menus.forEach(function(menu, index) {
+                    // 确定菜单级别
+                    let levelClass = '';
+                    let levelText = '';
+                    let level = getMenuLevel(menu, menus);
+                    
+                    switch(level) {
+                        case 1:
+                            levelClass = 'level-1';
+                            levelText = '一级菜单';
+                            break;
+                        case 2:
+                            levelClass = 'level-2';
+                            levelText = '二级菜单';
+                            break;
+                        case 3:
+                            levelClass = 'level-3';
+                            levelText = '三级菜单';
+                            break;
+                        default:
+                            levelClass = 'level-1';
+                            levelText = '一级菜单';
+                    }
+                    
+                    // 过滤条件检查
+                    if (levelFilter && level != levelFilter) {
+                        return;
+                    }
+                    
+                    let row = `
+                        <tr>
+                            <td><strong>${menu.menu_id}</strong></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="menu-icon">
+                                        <i class="fas fa-folder${level > 1 ? '-open' : ''}"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">${menu.menu_name}</div>
+                                        <div class="hierarchy-indicator">
+                                            ${Array(level).fill(0).map(() => '<div class="hierarchy-dot"></div>').join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="menu-url">${menu.menu_url || '无'}</span></td>
+                            <td>${menu.parent_id || '无'}</td>
+                            <td><span class="badge bg-secondary badge-menu">${menu.sort_order}</span></td>
+                            <td><span class="menu-level ${levelClass}">${levelText}</span></td>
+                            <td>${menu.remark || '无备注'}</td>
+                            <td class="action-buttons">
+                                <button class="btn btn-sm btn-info view-menu" data-index="${index}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-warning edit-menu" data-index="${index}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger delete-menu" data-index="${index}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.append(row);
+                });
+                
+                // 绑定操作按钮事件
+                $('.view-menu').click(function() {
+                    let index = $(this).data('index');
+                    viewMenu(menusData[index]);
+                });
+                
+                $('.edit-menu').click(function() {
+                    let index = $(this).data('index');
+                    showEditModal(menusData[index]);
+                });
+                
+                $('.delete-menu').click(function() {
+                    let index = $(this).data('index');
+                    showDeleteModal(menusData[index]);
+                });
+            }
+
+            // 获取菜单级别
+            function getMenuLevel(menu, allMenus) {
+                if (!menu.parent_id || menu.parent_id === 0) {
+                    return 1;
+                }
+                
+                let parent = allMenus.find(m => m.menu_id === menu.parent_id);
+                if (!parent) {
+                    return 1;
+                }
+                
+                return getMenuLevel(parent, allMenus) + 1;
+            }
+
+            // 查看菜单详情
+            function viewMenu(menu) {
+                let level = getMenuLevel(menu, menusData);
+                let levelText = level === 1 ? '一级菜单' : level === 2 ? '二级菜单' : '三级菜单';
+                
+                alert(`菜单详情:\n\n菜单ID: ${menu.menu_id}\n菜单名称: ${menu.menu_name}\n菜单URL: ${menu.menu_url || '无'}\n父菜单ID: ${menu.parent_id || '无'}\n排序号: ${menu.sort_order}\n菜单级别: ${levelText}\n备注: ${menu.remark || '无'}`);
+            }
+
+            // 更新分页
+            function updatePagination(response) {
+                let pagination = $('#pagination');
+                pagination.empty();
+                
+                if (response.count <= 10) {
+                    return; // 如果数据量小，不显示分页
+                }
+                
+                let totalPages = Math.ceil(response.count / 10);
+                
+                // 上一页按钮
+                if (response.previous) {
+                    pagination.append(`
+                        <li class="page-item">
+                            <a class="page-link" href="#" data-page="${currentPage - 1}">
+                                <i class="fas fa-chevron-left"></i> 上一页
+                            </a>
+                        </li>
+                    `);
+                } else {
+                    pagination.append(`
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">
+                                <i class="fas fa-chevron-left"></i> 上一页
+                            </a>
+                        </li>
+                    `);
+                }
+                
+                // 页码按钮
+                let startPage = Math.max(1, currentPage - 2);
+                let endPage = Math.min(totalPages, startPage + 4);
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    let activeClass = i === currentPage ? 'active' : '';
+                    pagination.append(`
+                        <li class="page-item ${activeClass}">
+                            <a class="page-link" href="#" data-page="${i}">${i}</a>
+                        </li>
+                    `);
+                }
+                
+                // 下一页按钮
+                if (response.next) {
+                    pagination.append(`
+                        <li class="page-item">
+                            <a class="page-link" href="#" data-page="${currentPage + 1}">
+                                下一页 <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    `);
+                } else {
+                    pagination.append(`
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">
+                                下一页 <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    `);
+                }
+                
+                // 绑定分页点击事件
+                $('.page-link').click(function(e) {
+                    e.preventDefault();
+                    let page = $(this).data('page');
+                    if (page) {
+                        currentPage = page;
+                        loadMenus();
+                    }
+                });
+            }
+
+            // 更新统计信息
+            function updateStats(menus) {
+                $('#total-menus').text(menus.length);
+                
+                let topLevelCount = menus.filter(menu => !menu.parent_id || menu.parent_id === 0).length;
+                let subMenuCount = menus.length - topLevelCount;
+                
+                $('#top-level-menus').text(topLevelCount);
+                $('#sub-menus').text(subMenuCount);
+                $('#active-menus').text(menus.filter(menu => menu.menu_url && menu.menu_url.trim() !== '').length);
+            }
+
+            // 更新菜单树
+            function updateMenuTree(menus) {
+                let menuTree = $('#menu-tree');
+                menuTree.empty();
+                
+                // 获取顶级菜单
+                let topLevelMenus = menus.filter(menu => !menu.parent_id || menu.parent_id === 0)
+                                        .sort((a, b) => a.sort_order - b.sort_order);
+                
+                if (topLevelMenus.length === 0) {
+                    menuTree.append(`
+                        <div class="empty-state">
+                            <i class="fas fa-sitemap"></i>
+                            <p class="text-muted">暂无菜单数据</p>
+                        </div>
+                    `);
+                    return;
+                }
+                
+                // 构建菜单树
+                topLevelMenus.forEach(topMenu => {
+                    let treeNode = `
+                        <div class="tree-node">
+                            <div class="d-flex align-items-center">
+                                <div class="menu-icon">
+                                    <i class="fas fa-folder"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">${topMenu.menu_name}</div>
+                                    <div class="text-muted small">ID: ${topMenu.menu_id} | 排序: ${topMenu.sort_order}</div>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="badge bg-primary badge-menu">顶级菜单</span>
+                            </div>
+                        </div>
+                    `;
+                    menuTree.append(treeNode);
+                    
+                    // 添加子菜单
+                    let childMenus = menus.filter(menu => menu.parent_id === topMenu.menu_id)
+                                         .sort((a, b) => a.sort_order - b.sort_order);
+                    
+                    childMenus.forEach(childMenu => {
+                        let childNode = `
+                            <div class="tree-node child">
+                                <div class="d-flex align-items-center">
+                                    <div class="menu-icon">
+                                        <i class="fas fa-folder-open"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">${childMenu.menu_name}</div>
+                                        <div class="text-muted small">ID: ${childMenu.menu_id} | 排序: ${childMenu.sort_order}</div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="badge bg-warning badge-menu">二级菜单</span>
+                                </div>
+                            </div>
+                        `;
+                        menuTree.append(childNode);
+                        
+                        // 添加三级菜单
+                        let grandchildMenus = menus.filter(menu => menu.parent_id === childMenu.menu_id)
+                                                  .sort((a, b) => a.sort_order - b.sort_order);
+                        
+                        grandchildMenus.forEach(grandchildMenu => {
+                            let grandchildNode = `
+                                <div class="tree-node grandchild">
+                                    <div class="d-flex align-items-center">
+                                        <div class="menu-icon">
+                                            <i class="fas fa-file"></i>
+                                        </div>
+                                        <div>
+                                            <div>${grandchildMenu.menu_name}</div>
+                                            <div class="text-muted small">ID: ${grandchildMenu.menu_id} | 排序: ${grandchildMenu.sort_order}</div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-success badge-menu">三级菜单</span>
+                                    </div>
+                                </div>
+                            `;
+                            menuTree.append(grandchildNode);
+                        });
+                    });
+                });
+            }
+
+            // 更新父菜单选择框
+            function updateParentSelect(menus) {
+                let parentSelect = $('#parent-id');
+                // 清空现有选项（保留第一个选项）
+                parentSelect.find('option:not(:first)').remove();
+                
+                // 添加顶级菜单作为父菜单选项
+                let topLevelMenus = menus.filter(menu => !menu.parent_id || menu.parent_id === 0);
+                topLevelMenus.forEach(menu => {
+                    parentSelect.append(`<option value="${menu.menu_id}">${menu.menu_name} (ID: ${menu.menu_id})</option>`);
+                });
+            }
+
+            // 显示添加菜单模态框
+            function showAddModal() {
+                $('#modal-title').text('新增菜单');
+                $('#menu-id').val('');
+                $('#menu-name').val('');
+                $('#menu-url').val('');
+                $('#parent-id').val('0');
+                $('#sort-order').val('0');
+                $('#menu-remark').val('');
+                
+                $('#menu-modal').modal('show');
+            }
+
+            // 显示编辑菜单模态框
+            function showEditModal(menu) {
+                $('#modal-title').text('编辑菜单');
+                $('#menu-id').val(menu.menu_id);
+                $('#menu-name').val(menu.menu_name);
+                $('#menu-url').val(menu.menu_url || '');
+                $('#parent-id').val(menu.parent_id || '0');
+                $('#sort-order').val(menu.sort_order);
+                $('#menu-remark').val(menu.remark || '');
+                
+                $('#menu-modal').modal('show');
+            }
+
+            // 显示删除确认模态框
+            function showDeleteModal(menu) {
+                menuToDelete = menu;
+                $('#delete-menu-name').text(menu.menu_name);
+                $('#delete-modal').modal('show');
+            }
+
+            // 保存菜单
+            function saveMenu() {
+                let menuId = $('#menu-id').val();
+                let menuData = {
+                    menu_name: $('#menu-name').val(),
+                    menu_url: $('#menu-url').val(),
+                    parent_id: $('#parent-id').val() === '0' ? null : parseInt($('#parent-id').val()),
+                    sort_order: parseInt($('#sort-order').val()),
+                    remark: $('#menu-remark').val()
+                };
+                
+                // 验证必填字段
+                if (!menuData.menu_name) {
+                    alert('请填写菜单名称');
+                    return;
+                }
+                
+                let url = '/api-menu/';
+                let method = 'POST';
+                
+                if (menuId) {
+                    // 编辑现有菜单
+                    url += menuId + '/';
+                    method = 'PUT';
+                }
+                
+                $.ajax({
+                    url: url,
+                    type: method,
+                    contentType: 'application/json',
+                    data: JSON.stringify(menuData),
+                    success: function(response) {
+                        $('#menu-modal').modal('hide');
+                        loadMenus();
+                        alert(`菜单${menuId ? '更新' : '添加'}成功`);
+                    },
+                    error: function(xhr, status, error) {
+                        alert(`菜单${menuId ? '更新' : '添加'}失败: ${error}`);
+                    }
+                });
+            }
+
+            // 删除菜单
+            function deleteMenu() {
+                if (!menuToDelete) return;
+                
+                $.ajax({
+                    url: `/api-menu/${menuToDelete.menu_id}/`,
+                    type: 'DELETE',
+                    success: function(response) {
+                        $('#delete-modal').modal('hide');
+                        loadMenus();
+                        alert('菜单删除成功');
+                    },
+                    error: function(xhr, status, error) {
+                        alert('菜单删除失败: ' + error);
+                    }
+                });
+            }
+
+            // 初始化页面
+            initPage();
+        });
+    </script>
+</body>
+</html>
